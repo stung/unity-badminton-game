@@ -70,7 +70,8 @@ public class DebugFeeder : MonoBehaviour
 
     private void Update()
     {
-        // These actions live outside PlayerInput, so they aren't switched off by the pause menu.
+        // These actions live outside PlayerInput, so the pause menu does not switch them off.
+        // Ignore them while time is frozen (paused or in hitstop).
         if (Time.timeScale == 0f) return;
         if (cycleAction.WasPressedThisFrame() && feeds.Length > 0)
         {

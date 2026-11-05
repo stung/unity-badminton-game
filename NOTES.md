@@ -3,17 +3,52 @@
 Running log of updates, newest first. Each entry: what changed, why, and anything left open.
 
 ## Next up
-1. **Shot system stage 2, attacking shots:** fixed-speed / solve-angle mode with net clearance in `LaunchSolver`. Real Back / Mid / Front Smash and Drive assets (replacing the placeholders). **Impact frames (hitstop) on hit**, with length scaling with shot strength, as a visual warning to both players.
-2. **Shot system stage 3, tuning pass:** depths, speeds, reach and timing windows in both physics modes; maybe a more forgiving window for smash returns.
-3. **Bot opponent:** a `BotIntentSource` that uses `LandingPredictor` to get under the birdie and picks a `ShotCategory`, going through the same `ShotTable` as the player.
+1. **Shot system stage 3, tuning pass (Realistic only):** depths, speeds, reach and timing windows; hitstop and shake amounts; maybe a more forgiving window for smash returns. Consider a higher minimum contact height for smashes: from 2.0 m contact, a mid/front "smash" often has to take pace off (fallback) and comes out slow.
+2. **Bot opponent:** a `BotIntentSource` that uses `LandingPredictor` to get under the birdie and picks a `ShotCategory`, going through the same `ShotTable` as the player.
 
 ## TODO / ideas (not scheduled)
 - **Shot imprecision:** shots are perfect for now. Later, degrade shot quality from **low stamina**, **bad positioning** (e.g. reaching at the edge of range or off-balance), and **bad timing** (early/late in the active window). Corner shots should get harder to execute from bad positions (e.g. a full cross-court net drop while stretched). Hook point: `ShotData.GetLaunchVelocity`, between `ChooseTarget` and solving the trajectory.
+- **Revisit the feel of the birdie:** drag, top falling speed, how hard it "stalls", shot speeds vs reaction time. Do it once more shots and the bot exist, so it's judged in real rallies.
+- **Arcade physics mode:** parked as of 2026-11-06. Two physics modes double the shot tuning, so all tuning targets **Realistic** for now. Arcade still exists in the Options menu but its shots aren't tuned. Revisit once Realistic feels right (it may need its own per-profile shot values).
 - **Fine-tune ShotTable categories:** e.g. should a low Square in the mid/back court be a Drop instead of a Net Drop? (Left as Net Drop for now, deliberately.)
 - **More aim targets for aggressive shots:** left/right **mid-court** spots for smashes and drives (body or half-court smashes), on top of straight and corners.
 - **Contact height shapes the trajectory:** the same button at different contact heights should give different flight paths. For example, a lift from near the floor is a high defensive arc, but at waist height it's flatter and faster. Likely more `ShotTable` rows with narrower height bands and their own shot assets (e.g. Low Lift / High Lift, Flat Drop / Floated Drop). It could also be a height-dependent angle on a single shot.
+- **Lunging:** a quick boost in the movement direction (greybox: the capsule dashes) to reach wide shots. Likely its own player state with recovery. Ties into stamina later.
+- **Jumping:** for jump smashes / intercepting high shots. Raises contact height, which the ShotTable already uses.
+- **Visible racket:** a greybox racket (e.g. a thin cylinder plus a flat disc) that swings with the Swinging state, for clearer timing feedback and so a whiff is visible.
 - **Input buffering:** accept a shot press slightly before the character can act (e.g. during recovery). Important for the fast, reflex-driven feel.
 - Stamina, diving, scoring, serve, dog art (from `CLAUDE.md`'s later list).
+
+---
+
+## 2026-11-06 — Shot system stage 2: attacking shots, hitstop, camera shake (Realistic only)
+
+**Attacking shots** (replace the stage 1 placeholders; tuned for Realistic, k=0.21):
+
+| Shot | Speed | Target depth | Angle range | Hitstop | Shake | Typical result (Python port) |
+|---|---|---|---|---|---|---|
+| Back Smash | 90 m/s | 4.0 m | -40° to 15° | 0.13 s | 0.85 | Reaches the net in ~0.14–0.23 s, lands ~4.3–5.6 m deep |
+| Mid Smash | 75 | 3.0 | -50° to 15° | 0.10 | 0.64 | Net in ~0.08 s, lands ~4.7 m |
+| Front Smash | 55 | 2.0 | -70° to 15° | 0.08 | 0.49 | Net in ~0.04 s, lands ~3.2 m |
+| Drive | 32 | 5.0 | -10° to 25° | 0.05 | 0.21 | Net in ~0.17 s, lands ~5.5 m |
+
+- New `ShotData.AimMode.FixedSpeed` + `LaunchSolver.SolveAngleAtSpeed`: the speed is fixed and the angle is solved to land on target, then raised just enough to clear the net by `minNetClearance`. So smashes from deep come out flatter and land deeper than their target, like real ones.
+- **Take pace off:** if the full-speed shot wouldn't land in court (e.g. a low-contact smash forced flat to clear the net would sail long), the shot falls back to solving the speed for the target (`TargetDepth` logic from `launchAngleDeg`, capped at `maxSpeed`).
+
+**Impact feedback**
+- `Scripts/Match/GameTime`: the single owner of `Time.timeScale`. Pause and hitstop both freeze time through it, so they can overlap safely. The hitstop countdown is held while paused. `PauseController` now goes through it.
+- `Scripts/Match/HitstopOnImpact`: on every launch (player, feeder, later the bot), freezes the game for the shot's `hitstopSeconds`. A global `hitstopScale` sets it to 0 to disable.
+- `Scripts/Camera/CameraShake`: trauma-based shake (strength = trauma², Perlin jitter) on unscaled time, so it shakes during the hitstop freeze. `FollowCamera` applies it after aiming, so it never feeds back into the camera smoothing. A global `intensityScale` controls it.
+- Both scale by how hard the shot actually went (`ShotData.ImpactScale` = launch speed / nominal speed for FixedSpeed shots), so a take-pace-off "smash" doesn't freeze and shake like a full one.
+
+**Shake doubled (same day):** per-shot shake intensities × √2 (0.6 / 0.45 / 0.35 / 0.15 → 0.85 / 0.64 / 0.49 / 0.21). Camera offset is intensity² × `maxOffset` (0.25 m), so this exactly doubles the movement (back smash peak about 9 → 18 cm). Doubling the intensities directly would have made it about 4× stronger.
+
+**Fixed (same day)**
+- Corner (left/right) smashes had weak or missing hitstop and shake. Clearing the net makes fast shots land deeper than their target, and on a diagonal that extra depth also carried them past the sideline (mid/front smashes by 0.3–0.5 m, back smashes from lower contacts). The game then took pace off, and the slowed shot's scaled feedback was tiny (shake is trauma², so half strength looks like nothing). Fix: FixedSpeed shots re-aim at the same sideline spot at the depth they actually land (1–2 extra solves). Checked in the Python port: corner smashes and drives now go at full speed and land about 2.75–2.8 m from the centre line (sideline at 3.05).
+
+**Other**
+- **Realistic is now the default** (first in `GameOptions`; the Birdie's own slot is also Realistic). A saved menu choice still wins, so if you'd picked Arcade before, switch it once in Options.
+- Feeder list: Clear, Drop, Net Drop, Lift, **Back Smash**, **Mid Smash**, **Drive**.
 
 ---
 

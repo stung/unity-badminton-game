@@ -41,6 +41,8 @@ public class Birdie : MonoBehaviour
     /// <summary>Who launched the current flight. Used to stop a player hitting their own shot twice.</summary>
     public object LastHitter { get; private set; }
     public bool IncomingSmash => LastShot != null && LastShot.CountsAsSmash;
+    /// <summary>Speed (m/s) the current flight was launched at.</summary>
+    public float LaunchSpeed { get; private set; }
 
     public event Action<LandingPrediction> Launched;
     public event Action<Vector3> Landed;
@@ -60,6 +62,7 @@ public class Birdie : MonoBehaviour
     {
         LastShot = shot;
         LastHitter = hitter;
+        LaunchSpeed = velocity.magnitude;
         activeParams = FlightParams;
         sim = new BirdieSimState { Position = from, Velocity = velocity };
         previousSimPosition = from;

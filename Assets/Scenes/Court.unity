@@ -1142,7 +1142,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d823fa49e2914ab0a552d1cdf728370, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Birdie
-  flightProfile: {fileID: 11400000, guid: 7a2645b63f88743188634315f9f50cf1, type: 2}
+  flightProfile: {fileID: 11400000, guid: bd49164843aa94e63b4e55b1b5838d92, type: 2}
   court: {fileID: 11400000, guid: 9a63fb85ec8f74db18d503218abe4385, type: 2}
   maxPredictionTime: 10
   logPredictionCheck: 1
@@ -1303,6 +1303,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2688da26096104feb8bb3f2f80f25307, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PauseController
+  gameTime: {fileID: 2059259752}
   gameplayActionMap: Gameplay
   uiActionMap: UI
   toggleGuardSeconds: 0.15
@@ -1803,8 +1804,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameOptions
   birdieProfiles:
-  - {fileID: 11400000, guid: 7a2645b63f88743188634315f9f50cf1, type: 2}
   - {fileID: 11400000, guid: bd49164843aa94e63b4e55b1b5838d92, type: 2}
+  - {fileID: 11400000, guid: 7a2645b63f88743188634315f9f50cf1, type: 2}
   birdie: {fileID: 862587068}
 --- !u!4 &1430144120
 Transform:
@@ -2786,6 +2787,7 @@ GameObject:
   - component: {fileID: 1788850634}
   - component: {fileID: 1788850633}
   - component: {fileID: 1788850632}
+  - component: {fileID: 1788850636}
   m_Layer: 0
   m_Name: Player1Camera
   m_TagString: MainCamera
@@ -2890,6 +2892,23 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1788850636
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1788850631}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72149286a1f294aed8edf82c6ca3c4ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraShake
+  birdie: {fileID: 862587068}
+  maxOffset: 0.25
+  frequency: 25
+  decayPerSecond: 3
+  intensityScale: 1
 --- !u!1 &1824324148
 GameObject:
   m_ObjectHideFlags: 0
@@ -3419,8 +3438,14 @@ MonoBehaviour:
     originDepth: 1.5
     originHeight: 0.6
   - shot: {fileID: 11400000, guid: 1711e7b696a6143aa823cae14fa3be22, type: 2}
-    originDepth: 5
+    originDepth: 5.5
     originHeight: 2.8
+  - shot: {fileID: 11400000, guid: 0c6ace5f63d3f474dabe80fc0d77ceb7, type: 2}
+    originDepth: 3.5
+    originHeight: 2.7
+  - shot: {fileID: 11400000, guid: dc5c8af31ef284f959003c9610a52609, type: 2}
+    originDepth: 3.5
+    originHeight: 1.3
   lateralRange: 1.5
   maxRandomAim: 0.6
   feedAction:
@@ -3523,6 +3548,67 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1511963664}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2059259750
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2059259753}
+  - component: {fileID: 2059259752}
+  - component: {fileID: 2059259751}
+  m_Layer: 0
+  m_Name: GameTime
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2059259751
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2059259750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58e728ef7534447b3accca13d5f1433e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HitstopOnImpact
+  birdie: {fileID: 862587068}
+  gameTime: {fileID: 2059259752}
+  hitstopScale: 1
+--- !u!114 &2059259752
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2059259750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 840478dee7ac0404a8fcb8553fa64791, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameTime
+  normalTimeScale: 1
+--- !u!4 &2059259753
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2059259750}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2062284702
 GameObject:
@@ -3782,3 +3868,4 @@ SceneRoots:
   - {fileID: 1763008068}
   - {fileID: 1430144120}
   - {fileID: 132471008}
+  - {fileID: 2059259753}

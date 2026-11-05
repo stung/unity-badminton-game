@@ -12,14 +12,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c1055a56311c48979427746a016bc78, type: 3}
   m_Name: BackSmash
   m_EditorClassIdentifier: Assembly-CSharp::ShotData
-  displayName: Back Smash (placeholder)
+  displayName: Back Smash
   countsAsSmash: 1
-  launchAngleDeg: 10
-  aimMode: 1
-  speed: 18
-  targetDepth: 3
-  maxSpeed: 60
-  minNetClearance: 0.1
-  maxAimYawDeg: 20
+  launchAngleDeg: -5
+  aimMode: 2
+  speed: 90
+  targetDepth: 4
+  maxSpeed: 90
+  minNetClearance: 0.15
+  minSolveAngleDeg: -40
+  maxSolveAngleDeg: 15
+  hitstopSeconds: 0.13
+  shakeIntensity: 0.85
+  sideAimThreshold: 0.3
   sidelineMargin: 0.3
+  baselineMargin: 0.3
   staminaCost: 0

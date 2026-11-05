@@ -12,14 +12,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c1055a56311c48979427746a016bc78, type: 3}
   m_Name: Drive
   m_EditorClassIdentifier: Assembly-CSharp::ShotData
-  displayName: Drive (placeholder)
+  displayName: Drive
   countsAsSmash: 0
   launchAngleDeg: 10
-  aimMode: 1
-  speed: 18
-  targetDepth: 4
-  maxSpeed: 60
+  aimMode: 2
+  speed: 32
+  targetDepth: 5
+  maxSpeed: 40
   minNetClearance: 0.1
-  maxAimYawDeg: 20
+  minSolveAngleDeg: -10
+  maxSolveAngleDeg: 25
+  hitstopSeconds: 0.05
+  shakeIntensity: 0.21
+  sideAimThreshold: 0.3
   sidelineMargin: 0.3
+  baselineMargin: 0.3
   staminaCost: 0

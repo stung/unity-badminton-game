@@ -21,12 +21,17 @@ public class FollowCamera : MonoBehaviour
 
     private Vector3 smoothVelocity;
     private Vector3 referencePoint;
+    // Tracked separately from transform.position so shake offsets never feed back into the smoothing.
+    private Vector3 smoothedPosition;
+    private CameraShake shake;
 
     private void Awake()
     {
         GetComponent<Camera>().rect = viewport;
         // Measure follow offsets from where the target starts so the base pose is the default view.
         referencePoint = target != null ? target.position : Vector3.zero;
+        smoothedPosition = transform.position;
+        shake = GetComponent<CameraShake>();
     }
 
     private void LateUpdate()
@@ -35,7 +40,10 @@ public class FollowCamera : MonoBehaviour
 
         Vector3 delta = Vector3.Scale(target.position - referencePoint, followAmount);
         Vector3 desired = basePosition + delta;
-        transform.position = Vector3.SmoothDamp(transform.position, desired, ref smoothVelocity, smoothTime);
+        smoothedPosition = Vector3.SmoothDamp(smoothedPosition, desired, ref smoothVelocity, smoothTime);
+        transform.position = smoothedPosition;
         transform.LookAt(baseLookAt + delta);
+        // Shake after LookAt: it nudges the camera in its own right/up plane without changing aim.
+        if (shake != null) transform.position += transform.rotation * shake.Offset;
     }
 }

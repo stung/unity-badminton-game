@@ -77,6 +77,58 @@ public static class LaunchSolver
     }
 
     /// <summary>
+    /// For shots defined by their pace (smashes, drives): keep the speed fixed and find the launch
+    /// angle (usually downward) that lands on the target, then raise it just enough to clear the net
+    /// by minClearance. A steep smash from deep would clip the tape, so it comes out flatter and
+    /// lands deeper, as real smashes do. The caller should check the result lands in court.
+    /// </summary>
+    public static Vector3 SolveAngleAtSpeed(Vector3 from, Vector3 target, float speed, float minAngleDeg,
+                                            float maxAngleDeg, float minClearance, in BirdieFlightParams p,
+                                            CourtDimensions court, int iterations = 24, float maxTime = 10f)
+    {
+        Vector3 flat = target - from;
+        flat.y = 0f;
+        float targetDistance = flat.magnitude;
+        Vector3 horizontal = targetDistance > 0.0001f ? flat / targetDistance : Vector3.forward;
+
+        // At a fixed speed, landing distance grows as the angle rises (within this range), so binary-search it.
+        float angle;
+        if (DistanceAtHeight(from, Velocity(maxAngleDeg), target.y, p, maxTime) < targetDistance) angle = maxAngleDeg;
+        else if (DistanceAtHeight(from, Velocity(minAngleDeg), target.y, p, maxTime) >= targetDistance) angle = minAngleDeg;
+        else
+        {
+            float lo = minAngleDeg, hi = maxAngleDeg;
+            for (int i = 0; i < iterations; i++)
+            {
+                float mid = 0.5f * (lo + hi);
+                if (DistanceAtHeight(from, Velocity(mid), target.y, p, maxTime) < targetDistance) lo = mid;
+                else hi = mid;
+            }
+            angle = hi;
+        }
+
+        // Net clearance also grows with angle: raise the angle until the arc clears the tape.
+        if (court != null && NetClearance(from, Velocity(angle), p, court) < minClearance)
+        {
+            float lo = angle, hi = maxAngleDeg;
+            for (int i = 0; i < iterations; i++)
+            {
+                float mid = 0.5f * (lo + hi);
+                if (NetClearance(from, Velocity(mid), p, court) < minClearance) lo = mid;
+                else hi = mid;
+            }
+            angle = hi;
+        }
+        return Velocity(angle);
+
+        Vector3 Velocity(float angleDeg)
+        {
+            float e = angleDeg * Mathf.Deg2Rad;
+            return (horizontal * Mathf.Cos(e) + Vector3.up * Mathf.Sin(e)) * speed;
+        }
+    }
+
+    /// <summary>
     /// Height (m) above the net tape where the flight crosses the net plane. +infinity if it passes
     /// outside the posts; -infinity if it lands before reaching the net (a short shot must never
     /// count as "clearing" it). Simulated without the net so we measure the clean arc.

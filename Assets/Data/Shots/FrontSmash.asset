@@ -12,14 +12,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c1055a56311c48979427746a016bc78, type: 3}
   m_Name: FrontSmash
   m_EditorClassIdentifier: Assembly-CSharp::ShotData
-  displayName: Front Smash (placeholder)
+  displayName: Front Smash
   countsAsSmash: 1
-  launchAngleDeg: 10
-  aimMode: 1
-  speed: 18
-  targetDepth: 3
-  maxSpeed: 60
+  launchAngleDeg: -10
+  aimMode: 2
+  speed: 55
+  targetDepth: 2
+  maxSpeed: 55
   minNetClearance: 0.1
-  maxAimYawDeg: 20
+  minSolveAngleDeg: -70
+  maxSolveAngleDeg: 15
+  hitstopSeconds: 0.08
+  shakeIntensity: 0.49
+  sideAimThreshold: 0.3
   sidelineMargin: 0.3
+  baselineMargin: 0.3
   staminaCost: 0

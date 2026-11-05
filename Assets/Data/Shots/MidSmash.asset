@@ -12,14 +12,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c1055a56311c48979427746a016bc78, type: 3}
   m_Name: MidSmash
   m_EditorClassIdentifier: Assembly-CSharp::ShotData
-  displayName: Mid Smash (placeholder)
+  displayName: Mid Smash
   countsAsSmash: 1
-  launchAngleDeg: 10
-  aimMode: 1
-  speed: 18
+  launchAngleDeg: -5
+  aimMode: 2
+  speed: 75
   targetDepth: 3
-  maxSpeed: 60
-  minNetClearance: 0.1
-  maxAimYawDeg: 20
+  maxSpeed: 75
+  minNetClearance: 0.15
+  minSolveAngleDeg: -50
+  maxSolveAngleDeg: 15
+  hitstopSeconds: 0.1
+  shakeIntensity: 0.64
+  sideAimThreshold: 0.3
   sidelineMargin: 0.3
+  baselineMargin: 0.3
   staminaCost: 0
