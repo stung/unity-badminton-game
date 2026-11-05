@@ -1,0 +1,19 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="PauseMenu.uss" />
+    <ui:VisualElement name="overlay" class="overlay">
+        <ui:VisualElement name="pause-panel" class="panel">
+            <ui:Label text="PAUSED" class="title" />
+            <ui:Button name="resume-button" text="Resume" class="menu-button" />
+            <ui:Button name="options-button" text="Options" class="menu-button" />
+        </ui:VisualElement>
+        <ui:VisualElement name="options-panel" class="panel">
+            <ui:Label text="OPTIONS" class="title" />
+            <ui:Button name="birdie-physics-button" class="menu-button option-row">
+                <ui:Label text="Birdie physics" class="option-name" />
+                <ui:Label name="birdie-physics-value" text="&lt;  Arcade  &gt;" class="option-value" />
+            </ui:Button>
+            <ui:Label name="birdie-physics-description" text="Coming soon: switch between Arcade and Realistic flight." class="option-description" />
+            <ui:Button name="back-button" text="Back" class="menu-button" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

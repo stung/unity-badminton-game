@@ -2,6 +2,34 @@
 
 Running log of updates, newest first. Each entry: what changed, why, and anything left open.
 
+## Next up
+1. **Birdie physics option (stage 2 of the pause menu work):** `BirdieFlightProfile` assets (Arcade k=0.12, Realistic k=0.21), a `GameOptions` component that saves the choice, and the Options row cycling between them. Changes apply on the next launch.
+2. **Bot opponent:** a `BotIntentSource` that uses `LandingPredictor` to move under the birdie and clear it back. That completes the current milestone (player vs bot clear rally).
+
+---
+
+## 2026-11-05 — Pause menu with Options screen (birdie physics placeholder)
+
+**Added**
+- Input: `Gameplay/Pause` (DualSense Options / Esc). New `UI` action map: Navigate (stick, d-pad, arrows, WASD), Submit (Cross / Enter / Space), Cancel (Circle / Esc), Point + Click (mouse), Resume (Options). The UI action names match Unity's defaults so the UI input module can use them.
+- `Scripts/Match/PauseController`: pure logic. It sets `Time.timeScale = 0`, switches every `PlayerInput` to the UI map (so menu presses can't queue a swing), and raises Paused/Resumed events. A 0.15 s guard stops a single Esc/Options press from both pausing and resuming.
+- `Scripts/Player/PauseInput`: reads the Pause/Resume actions and forwards them to `PauseController`.
+- `Scripts/UI/PlayerUIInputBinder`: points the EventSystem's `InputSystemUIInputModule` at the player's own UI map.
+- `Scripts/UI/PauseMenuView` + `Assets/UI/PauseMenu.uxml/.uss`: UI Toolkit menu (Paused → Resume / Options; Options → Birdie physics, Back). Circle/Esc backs out one level, then resumes.
+- `Assets/UI/PanelSettings.asset` (scale with screen size, 1920×1080 reference) + `BadmintonTheme.tss` (imports Unity's default runtime theme). Kept with the other UI files in `Assets/UI/` rather than `Assets/Data/`.
+- Scene: `PauseController`, `EventSystem`, and `PauseMenu` objects. `PauseInput` added to the Player.
+- Build Settings: removed the stale SampleScene entry; Court is the only scene.
+
+**Fixed**
+- The left stick couldn't navigate the menu (only the d-pad could). `UI/Navigate` was a PassThrough action. The DualSense re-sends its full state constantly, so the idle d-pad (bound after the stick) overwrote the stick's direction on every report. Changing it to a Value action makes the input system pick the most-pushed control. Unity's own UI module source flags this ("ps4 controller is spamming this action").
+- After that, holding the stick cycled the menu but taps were lost. The analog stick's first move event was weak (just past its small rest deadzone). UI Toolkit ignored it, but the UI module still started its 0.5 s repeat delay. Fix: in the UI map the left stick is now a digital 2D-vector composite (`leftStick/up/down/left/right`), so each direction "presses" at half deflection and sends a full-strength move, like the d-pad. Gameplay movement still uses the analog stick.
+
+**Placeholder**
+- The "Birdie physics" row is focusable and shows "Arcade", but does nothing yet. It gets wired up in the next stage.
+
+**Not verified by me**
+- The menu's look and gamepad/keyboard navigation. MCP can't press buttons, so I only confirmed it compiles, starts without errors, and is hidden during play.
+
 ---
 
 ## 2026-11-02 — Prototype: greybox court, movement, birdie sim, clear

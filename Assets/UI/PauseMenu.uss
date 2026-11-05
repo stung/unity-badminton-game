@@ -1,0 +1,80 @@
+/* Greybox pause menu. Sizes assume the 1920x1080 reference resolution in PanelSettings. */
+
+.overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.55);
+}
+
+.panel {
+    min-width: 640px;
+    padding: 32px 48px;
+    border-radius: 12px;
+    border-width: 2px;
+    border-color: rgb(80, 85, 95);
+    background-color: rgb(30, 32, 38);
+}
+
+/* Options starts hidden; PauseMenuView toggles panels at runtime. */
+#options-panel {
+    display: none;
+}
+
+.title {
+    margin-bottom: 24px;
+    font-size: 48px;
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.menu-button {
+    height: 64px;
+    margin: 6px 0;
+    border-width: 0;
+    border-radius: 8px;
+    font-size: 32px;
+    color: rgb(220, 220, 220);
+    background-color: rgb(50, 54, 62);
+    -unity-text-align: middle-center;
+}
+
+/* Same highlight for mouse hover and gamepad/keyboard focus, so it's always clear what's selected. */
+.menu-button:hover,
+.menu-button:focus {
+    color: rgb(20, 20, 20);
+    background-color: rgb(255, 204, 26);
+}
+
+.option-row {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 24px;
+}
+
+.option-name,
+.option-value {
+    font-size: 32px;
+    color: rgb(220, 220, 220);
+}
+
+.menu-button:hover .option-name,
+.menu-button:hover .option-value,
+.menu-button:focus .option-name,
+.menu-button:focus .option-value {
+    color: rgb(20, 20, 20);
+}
+
+.option-description {
+    margin: 0 0 18px 0;
+    font-size: 22px;
+    white-space: normal;
+    color: rgb(150, 155, 165);
+    -unity-text-align: middle-center;
+}
