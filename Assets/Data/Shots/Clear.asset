@@ -12,8 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c1055a56311c48979427746a016bc78, type: 3}
   m_Name: Clear
   m_EditorClassIdentifier: Assembly-CSharp::ShotData
-  launchAngleDeg: 50
+  launchAngleDeg: 40
+  aimMode: 1
   speed: 19
+  targetDepth: 5.9
+  maxSpeed: 100
   maxAimYawDeg: 12
   staminaCost: 0
   windup: 0.05

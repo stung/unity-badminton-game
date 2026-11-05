@@ -9,13 +9,18 @@ public class Birdie : MonoBehaviour
 {
     public enum FlightState { Idle, InFlight, Landed }
 
-    [SerializeField] private BirdieFlightParams flightParams = BirdieFlightParams.Default;
+    [Tooltip("Flight constants. GameOptions overrides this at startup with the player's saved choice. " +
+             "Changes take effect from the next launch, never mid-flight.")]
+    [SerializeField] private BirdieFlightProfile flightProfile;
     [Tooltip("Used for net collision.")]
     [SerializeField] private CourtDimensions court;
     [SerializeField] private float maxPredictionTime = 10f;
     [Tooltip("Logs predicted vs actual landing point. They should match exactly.")]
     [SerializeField] private bool logPredictionCheck = true;
 
+    // Params captured at launch. A profile switch mid-flight must not change the current trajectory,
+    // or it would stop matching the landing prediction made at launch.
+    private BirdieFlightParams activeParams = BirdieFlightParams.Default;
     private BirdieSimState sim;
     private Vector3 previousSimPosition;
     private float accumulator;
@@ -26,7 +31,9 @@ public class Birdie : MonoBehaviour
     /// <summary>Exact simulated position (the transform is interpolated for smooth rendering).</summary>
     public Vector3 Position => sim.Position;
     public Vector3 Velocity => sim.Velocity;
-    public BirdieFlightParams FlightParams => flightParams;
+    /// <summary>Params the NEXT launch will use (for solvers planning a shot). The current flight uses activeParams.</summary>
+    public BirdieFlightParams FlightParams => flightProfile != null ? flightProfile.Params : BirdieFlightParams.Default;
+    public BirdieFlightProfile FlightProfile => flightProfile;
     public CourtDimensions Court => court;
     public LandingPrediction Prediction => prediction;
 
@@ -39,8 +46,14 @@ public class Birdie : MonoBehaviour
         previousSimPosition = sim.Position;
     }
 
+    public void SetFlightProfile(BirdieFlightProfile profile)
+    {
+        flightProfile = profile;
+    }
+
     public void Launch(Vector3 from, Vector3 velocity)
     {
+        activeParams = FlightParams;
         sim = new BirdieSimState { Position = from, Velocity = velocity };
         previousSimPosition = from;
         accumulator = 0f;
@@ -48,7 +61,7 @@ public class Birdie : MonoBehaviour
         transform.position = from;
 
         // The flight is deterministic, so predicting once at launch is enough.
-        prediction = LandingPredictor.Predict(sim, flightParams, court, maxPredictionTime);
+        prediction = LandingPredictor.Predict(sim, activeParams, court, maxPredictionTime);
         Launched?.Invoke(prediction);
     }
 
@@ -56,7 +69,7 @@ public class Birdie : MonoBehaviour
     {
         if (State != FlightState.InFlight) return;
 
-        float dt = flightParams.TimeStep;
+        float dt = activeParams.TimeStep;
         // Fixed-step accumulator: the sim always advances in identical steps regardless of frame
         // rate, which keeps it deterministic and in sync with LandingPredictor. The cap stops a
         // hitch (e.g. breakpoint) from triggering hundreds of catch-up steps.
@@ -64,7 +77,7 @@ public class Birdie : MonoBehaviour
         while (accumulator >= dt)
         {
             previousSimPosition = sim.Position;
-            BirdieStepResult result = BirdieFlightModel.Step(ref sim, flightParams, court);
+            BirdieStepResult result = BirdieFlightModel.Step(ref sim, activeParams, court);
             accumulator -= dt;
             if (result == BirdieStepResult.Landed)
             {

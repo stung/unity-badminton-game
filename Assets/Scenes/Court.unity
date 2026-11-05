@@ -1072,10 +1072,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d823fa49e2914ab0a552d1cdf728370, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Birdie
-  flightParams:
-    gravity: 9.81
-    dragCoefficient: 0.12
-    timeStep: 0.008333334
+  flightProfile: {fileID: 11400000, guid: 7a2645b63f88743188634315f9f50cf1, type: 2}
   court: {fileID: 11400000, guid: 9a63fb85ec8f74db18d503218abe4385, type: 2}
   maxPredictionTime: 10
   logPredictionCheck: 1
@@ -1706,6 +1703,54 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1395806772}
   m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1430144118
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1430144120}
+  - component: {fileID: 1430144119}
+  m_Layer: 0
+  m_Name: GameOptions
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1430144119
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1430144118}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 167a9d485db0a41ce9bb8ad9764baf8b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameOptions
+  birdieProfiles:
+  - {fileID: 11400000, guid: 7a2645b63f88743188634315f9f50cf1, type: 2}
+  - {fileID: 11400000, guid: bd49164843aa94e63b4e55b1b5838d92, type: 2}
+  birdie: {fileID: 862587068}
+--- !u!4 &1430144120
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1430144118}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1482997105
 GameObject:
   m_ObjectHideFlags: 0
@@ -2615,6 +2660,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PauseMenuView
   pauseController: {fileID: 1150946580}
+  gameOptions: {fileID: 1430144119}
 --- !u!114 &1763008067
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3287,6 +3333,7 @@ MonoBehaviour:
   target: {fileID: 2046068773}
   feedOrigin: {x: 0, y: 2.2, z: 5.5}
   feedAngleDeg: 55
+  maxFeedSpeed: 150
   randomOffset: {x: 1, y: 1}
   feedAction:
     m_Name: Feed
@@ -3635,3 +3682,4 @@ SceneRoots:
   - {fileID: 1150946581}
   - {fileID: 2133145859}
   - {fileID: 1763008068}
+  - {fileID: 1430144120}

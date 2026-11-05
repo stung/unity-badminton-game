@@ -16,14 +16,14 @@ public class ShotData : ScriptableObject
 
     [Header("Launch")]
     [Tooltip("Elevation above horizontal, in degrees. Clears are high and steep.")]
-    [SerializeField] private float launchAngleDeg = 50f;
+    [SerializeField] private float launchAngleDeg = 40f;
     [SerializeField] private AimMode aimMode = AimMode.TargetDepth;
     [Tooltip("FixedPower: launch speed in m/s. With heavy drag, distance grows slowly with speed, so tune in small steps.")]
     [SerializeField] private float speed = 18f;
     [Tooltip("TargetDepth: where to land, in metres past the net on the opponent's side (baseline is at 6.7).")]
     [SerializeField] private float targetDepth = 5.9f;
     [Tooltip("TargetDepth: speed cap (m/s). If the target is out of reach, the shot goes at this speed and falls short.")]
-    [SerializeField] private float maxSpeed = 40f;
+    [SerializeField] private float maxSpeed = 100f;
     [Tooltip("Max left/right aim (degrees) from full sideways stick at the moment of contact.")]
     [SerializeField] private float maxAimYawDeg = 12f;
 

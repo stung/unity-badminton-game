@@ -3,8 +3,21 @@
 Running log of updates, newest first. Each entry: what changed, why, and anything left open.
 
 ## Next up
-1. **Birdie physics option (stage 2 of the pause menu work):** `BirdieFlightProfile` assets (Arcade k=0.12, Realistic k=0.21), a `GameOptions` component that saves the choice, and the Options row cycling between them. Changes apply on the next launch.
-2. **Bot opponent:** a `BotIntentSource` that uses `LandingPredictor` to move under the birdie and clear it back. That completes the current milestone (player vs bot clear rally).
+1. **Bot opponent:** a `BotIntentSource` that uses `LandingPredictor` to move under the birdie and clear it back. That completes the current milestone (player vs bot clear rally).
+
+---
+
+## 2026-11-05 — Birdie physics option: Arcade / Realistic
+
+**Added**
+- `Scripts/Birdie/BirdieFlightProfile`: ScriptableObject with display name, description, and flight params. Assets: `Assets/Data/Birdie/Arcade.asset` (drag k=0.12, floaty, terminal ≈ 9 m/s) and `Realistic.asset` (k=0.21, real-shuttle drag, terminal ≈ 6.8 m/s).
+- `Birdie` now takes a profile (replacing its inline params) and captures the params at launch, so switching mid-flight never alters the current flight or breaks the landing prediction. The switch applies from the next hit or feed.
+- `Scripts/Match/GameOptions`: owns the profile list and current choice, applies it to the birdie, and saves it in PlayerPrefs (by asset name, so reordering the list is safe). Raises `Changed` for menus.
+- Options menu: the Birdie physics row cycles with left/right, or forward with Cross/click. The description line under it comes from the profile.
+
+**Tuning changes**
+- Clear launch angle 50° → **40°** and speed cap 40 → **100 m/s**. With realistic drag a steep clear wastes most of its speed climbing: a 47° clear from the baseline needed about 103 m/s, versus about 71 m/s at 40° (close to real elite clears). Arcade at 40° has a slightly lower arc (apex about 4.6–6.2 m vs about 6.7 m before). Both modes still land at the 5.9 m target depth.
+- `DebugFeeder` gets a `maxFeedSpeed` of 150 m/s (realistic feeds to the back court need about 90).
 
 ---
 

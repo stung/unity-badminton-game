@@ -13,6 +13,8 @@ public class DebugFeeder : MonoBehaviour
     [SerializeField] private Vector3 feedOrigin = new Vector3(0f, 2.2f, 5.5f);
     [Tooltip("Higher angle = steeper, slower-falling feed that's easier to time.")]
     [SerializeField] private float feedAngleDeg = 55f;
+    [Tooltip("Speed cap for the solver (m/s). Realistic drag needs ~90 m/s to feed the back court.")]
+    [SerializeField] private float maxFeedSpeed = 150f;
     [Tooltip("Random horizontal offset (m) added to the target so you have to move a little.")]
     [SerializeField] private Vector2 randomOffset = new Vector2(1.0f, 1.0f);
     [Tooltip("Default bindings (R / Triangle) are added at runtime if this is left empty.")]
@@ -43,7 +45,8 @@ public class DebugFeeder : MonoBehaviour
             Random.Range(-randomOffset.x, randomOffset.x), 0f,
             Random.Range(-randomOffset.y, randomOffset.y));
 
-        if (LaunchSolver.TrySolve(feedOrigin, aim, feedAngleDeg, birdie.FlightParams, out Vector3 velocity))
+        if (LaunchSolver.TrySolve(feedOrigin, aim, feedAngleDeg, birdie.FlightParams, out Vector3 velocity,
+                                    maxSpeed: maxFeedSpeed))
         {
             birdie.Launch(feedOrigin, velocity);
         }

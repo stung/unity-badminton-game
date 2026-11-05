@@ -9,6 +9,7 @@ using UnityEngine.UIElements;
 public class PauseMenuView : MonoBehaviour
 {
     [SerializeField] private PauseController pauseController;
+    [SerializeField] private GameOptions gameOptions;
 
     private VisualElement root;
     private VisualElement pausePanel;
@@ -17,6 +18,8 @@ public class PauseMenuView : MonoBehaviour
     private Button optionsButton;
     private Button birdiePhysicsButton;
     private Button backButton;
+    private Label birdiePhysicsValue;
+    private Label birdiePhysicsDescription;
 
     private void Start()
     {
@@ -28,11 +31,17 @@ public class PauseMenuView : MonoBehaviour
         optionsButton = root.Q<Button>("options-button");
         birdiePhysicsButton = root.Q<Button>("birdie-physics-button");
         backButton = root.Q<Button>("back-button");
+        birdiePhysicsValue = root.Q<Label>("birdie-physics-value");
+        birdiePhysicsDescription = root.Q<Label>("birdie-physics-description");
 
         resumeButton.clicked += pauseController.Resume;
         optionsButton.clicked += ShowOptions;
         backButton.clicked += ShowPausePanel;
-        // Birdie physics is a placeholder for now: focusable so navigation is final, but does nothing.
+        // Birdie physics: Cross/click cycles forward; left/right on the row cycles either way.
+        birdiePhysicsButton.clicked += () => gameOptions.CycleBirdieProfile(+1);
+        birdiePhysicsButton.RegisterCallback<NavigationMoveEvent>(OnBirdiePhysicsMove);
+        gameOptions.Changed += RefreshOptions;
+        RefreshOptions();
 
         // Circle / Esc: back out one level, or resume from the top level.
         root.RegisterCallback<NavigationCancelEvent>(OnCancel);
@@ -47,6 +56,27 @@ public class PauseMenuView : MonoBehaviour
         if (pauseController == null) return;
         pauseController.Paused -= OnPaused;
         pauseController.Resumed -= OnResumed;
+        if (gameOptions != null) gameOptions.Changed -= RefreshOptions;
+    }
+
+    private void OnBirdiePhysicsMove(NavigationMoveEvent evt)
+    {
+        int step = evt.direction switch
+        {
+            NavigationMoveEvent.Direction.Left => -1,
+            NavigationMoveEvent.Direction.Right => +1,
+            _ => 0,
+        };
+        if (step == 0) return; // Up/down: let normal focus navigation handle it.
+        gameOptions.CycleBirdieProfile(step);
+        evt.StopPropagation();
+    }
+
+    private void RefreshOptions()
+    {
+        BirdieFlightProfile profile = gameOptions.BirdieProfile;
+        birdiePhysicsValue.text = profile != null ? $"<  {profile.DisplayName}  >" : "-";
+        birdiePhysicsDescription.text = profile != null ? profile.Description : string.Empty;
     }
 
     private void OnPaused()
