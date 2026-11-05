@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="DebugHud.uss" />
+    <!-- picking-mode Ignore everywhere so the readout never blocks clicks. -->
+    <ui:VisualElement name="hud" class="hud" picking-mode="Ignore">
+        <ui:Label name="feed" text="Feed: -" class="hud-line" picking-mode="Ignore" />
+        <ui:Label name="last-shot" text="Last shot: -" class="hud-line" picking-mode="Ignore" />
+    </ui:VisualElement>
+</ui:UXML>

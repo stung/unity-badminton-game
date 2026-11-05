@@ -36,6 +36,11 @@ public class Birdie : MonoBehaviour
     public BirdieFlightProfile FlightProfile => flightProfile;
     public CourtDimensions Court => court;
     public LandingPrediction Prediction => prediction;
+    /// <summary>Shot that sent the birdie on its current flight (null for untyped launches).</summary>
+    public ShotData LastShot { get; private set; }
+    /// <summary>Who launched the current flight. Used to stop a player hitting their own shot twice.</summary>
+    public object LastHitter { get; private set; }
+    public bool IncomingSmash => LastShot != null && LastShot.CountsAsSmash;
 
     public event Action<LandingPrediction> Launched;
     public event Action<Vector3> Landed;
@@ -51,8 +56,10 @@ public class Birdie : MonoBehaviour
         flightProfile = profile;
     }
 
-    public void Launch(Vector3 from, Vector3 velocity)
+    public void Launch(Vector3 from, Vector3 velocity, ShotData shot = null, object hitter = null)
     {
+        LastShot = shot;
+        LastHitter = hitter;
         activeParams = FlightParams;
         sim = new BirdieSimState { Position = from, Velocity = velocity };
         previousSimPosition = from;

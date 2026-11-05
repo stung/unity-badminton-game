@@ -16,18 +16,36 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Shot",
+                    "name": "Pause",
                     "type": "Button",
-                    "id": "45dd9cdc-7ffd-44c7-a6ab-902778e91231",
+                    "id": "174c5394-da68-41d0-ac71-de0df9a63ed2",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Pause",
+                    "name": "Defensive",
                     "type": "Button",
-                    "id": "174c5394-da68-41d0-ac71-de0df9a63ed2",
+                    "id": "e003491d-c9e6-4505-9a62-8cc96443d901",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Precision",
+                    "type": "Button",
+                    "id": "0c03c879-9ad0-4b01-aa8a-ff36477c957c",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Attack",
+                    "type": "Button",
+                    "id": "d6b0d239-43a3-45bc-a89c-2b5531cc07e0",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -103,39 +121,6 @@
                 },
                 {
                     "name": "",
-                    "id": "cbff0498-3853-462e-8fb1-ac03946ab920",
-                    "path": "<Gamepad>/buttonWest",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Gamepad",
-                    "action": "Shot",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "264d0522-be21-4cbb-889b-86725d47ec5f",
-                    "path": "<Keyboard>/space",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard",
-                    "action": "Shot",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "2a20ba0c-9ba5-47af-8f59-863b22a0dd93",
-                    "path": "<Keyboard>/j",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard",
-                    "action": "Shot",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "181f9325-dddc-47ec-b1a6-c545f2235233",
                     "path": "<Gamepad>/start",
                     "interactions": "",
@@ -153,6 +138,72 @@
                     "processors": "",
                     "groups": "Keyboard",
                     "action": "Pause",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2aa580c8-a80a-45ad-bf6d-509a689b4c2a",
+                    "path": "<Gamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Defensive",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a30f4d2e-d705-490e-aa67-b61b389fd137",
+                    "path": "<Keyboard>/j",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard",
+                    "action": "Defensive",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "14e03d33-d70b-4d9c-8752-84a5bbfac157",
+                    "path": "<Gamepad>/buttonWest",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Precision",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "02762144-1da9-48bc-bba2-32c19fbc1c99",
+                    "path": "<Keyboard>/k",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard",
+                    "action": "Precision",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2de77e56-1843-4b10-9d36-afe8c95e0dc8",
+                    "path": "<Gamepad>/buttonNorth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Attack",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "acd88e39-6e56-444d-bafd-284babede710",
+                    "path": "<Keyboard>/l",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard",
+                    "action": "Attack",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

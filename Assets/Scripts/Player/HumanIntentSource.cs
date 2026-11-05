@@ -9,18 +9,22 @@ using UnityEngine.InputSystem;
 public class HumanIntentSource : IntentSource
 {
     [SerializeField] private string moveActionName = "Move";
-    [SerializeField] private string shotActionName = "Shot";
-    [Tooltip("Shot played when the Shot button is pressed. Only clears exist for now.")]
-    [SerializeField] private ShotData shot;
+    [SerializeField] private string defensiveActionName = "Defensive";
+    [SerializeField] private string precisionActionName = "Precision";
+    [SerializeField] private string attackActionName = "Attack";
 
     private InputAction moveAction;
-    private InputAction shotAction;
+    private InputAction defensiveAction;
+    private InputAction precisionAction;
+    private InputAction attackAction;
 
     private void Awake()
     {
         var actions = GetComponent<PlayerInput>().actions;
         moveAction = actions.FindAction(moveActionName, throwIfNotFound: true);
-        shotAction = actions.FindAction(shotActionName, throwIfNotFound: true);
+        defensiveAction = actions.FindAction(defensiveActionName, throwIfNotFound: true);
+        precisionAction = actions.FindAction(precisionActionName, throwIfNotFound: true);
+        attackAction = actions.FindAction(attackActionName, throwIfNotFound: true);
     }
 
     public override CharacterIntent ReadIntent()
@@ -29,8 +33,16 @@ public class HumanIntentSource : IntentSource
         {
             // WASD composites can produce (1,1); clamp so diagonals aren't faster than the stick.
             Move = Vector2.ClampMagnitude(moveAction.ReadValue<Vector2>(), 1f),
-            ShotPressed = shotAction.WasPressedThisFrame(),
-            Shot = shot,
+            ShotRequest = ReadShotRequest(),
         };
+    }
+
+    private ShotCategory ReadShotRequest()
+    {
+        // If two buttons land on the same frame, the more committal shot wins.
+        if (attackAction.WasPressedThisFrame()) return ShotCategory.Attack;
+        if (precisionAction.WasPressedThisFrame()) return ShotCategory.Precision;
+        if (defensiveAction.WasPressedThisFrame()) return ShotCategory.Defensive;
+        return ShotCategory.None;
     }
 }

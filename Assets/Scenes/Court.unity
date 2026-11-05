@@ -231,6 +231,76 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 119102777}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &132471005
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 132471008}
+  - component: {fileID: 132471007}
+  - component: {fileID: 132471006}
+  m_Layer: 0
+  m_Name: DebugHud
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &132471006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 132471005}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c64da0743ba99455c8c2a05c8b06617c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DebugHudView
+  hitter: {fileID: 1511963666}
+  feeder: {fileID: 1994363703}
+--- !u!114 &132471007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 132471005}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
+  m_PanelSettings: {fileID: 11400000, guid: 2b88f9bddc1194a6fa4a300626974b84, type: 2}
+  m_ParentUI: {fileID: 0}
+  sourceAsset: {fileID: 9197481963319205126, guid: 94c8e943b10684f959eb1caa605ceebf, type: 3}
+  m_SortingOrder: 0
+  m_Position: 0
+  m_WorldSpaceSizeMode: 1
+  m_WorldSpaceWidth: 1920
+  m_WorldSpaceHeight: 1080
+  m_PivotReferenceSize: 0
+  m_Pivot: 0
+  m_WorldSpaceCollider: {fileID: 0}
+--- !u!4 &132471008
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 132471005}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &156451839
 GameObject:
   m_ObjectHideFlags: 0
@@ -1920,6 +1990,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterStateMachine
   intentSource: {fileID: 1511963667}
   hitter: {fileID: 1511963666}
+  swingTiming: {fileID: 11400000, guid: 743b34862600841b1ade3e954e0bc9a2, type: 2}
 --- !u!114 &1511963666
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1932,9 +2003,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c063603020814ff6bce5e11f48b01a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShotHitter
+  shotTable: {fileID: 11400000, guid: b251da6e965f64beaa3b8e3ee2536077, type: 2}
+  birdie: {fileID: 862587068}
   hitPoint: {fileID: 2046068773}
   reachRadius: 1
-  birdie: {fileID: 862587068}
+  minReachHeight: 0.1
+  maxReachHeight: 3.1
 --- !u!114 &1511963667
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1948,8 +2022,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HumanIntentSource
   moveActionName: Move
-  shotActionName: Shot
-  shot: {fileID: 11400000, guid: 4e4ec4b480d5d4d11ba60a902bc7cf36, type: 2}
+  defensiveActionName: Defensive
+  precisionActionName: Precision
+  attackActionName: Attack
 --- !u!114 &1511963668
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2676,7 +2751,7 @@ MonoBehaviour:
   m_PanelSettings: {fileID: 11400000, guid: 2b88f9bddc1194a6fa4a300626974b84, type: 2}
   m_ParentUI: {fileID: 0}
   sourceAsset: {fileID: 9197481963319205126, guid: e66e7745452b3478e8f990ead4ff0ddf, type: 3}
-  m_SortingOrder: 0
+  m_SortingOrder: 10
   m_Position: 0
   m_WorldSpaceSizeMode: 1
   m_WorldSpaceWidth: 1920
@@ -3330,16 +3405,39 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DebugFeeder
   birdie: {fileID: 862587068}
-  target: {fileID: 2046068773}
-  feedOrigin: {x: 0, y: 2.2, z: 5.5}
-  feedAngleDeg: 55
-  maxFeedSpeed: 150
-  randomOffset: {x: 1, y: 1}
+  feeds:
+  - shot: {fileID: 11400000, guid: 4e4ec4b480d5d4d11ba60a902bc7cf36, type: 2}
+    originDepth: 5.5
+    originHeight: 2.6
+  - shot: {fileID: 11400000, guid: ffa66ded830cd46d6bc85c8fb9785f12, type: 2}
+    originDepth: 5.5
+    originHeight: 2.6
+  - shot: {fileID: 11400000, guid: 0e66b757a0ec9451cb4bba0dadb999a8, type: 2}
+    originDepth: 1.2
+    originHeight: 1
+  - shot: {fileID: 11400000, guid: 852b04c5881cf44f38c7d29846c3436c, type: 2}
+    originDepth: 1.5
+    originHeight: 0.6
+  - shot: {fileID: 11400000, guid: 1711e7b696a6143aa823cae14fa3be22, type: 2}
+    originDepth: 5
+    originHeight: 2.8
+  lateralRange: 1.5
+  maxRandomAim: 0.6
   feedAction:
     m_Name: Feed
     m_Type: 1
     m_ExpectedControlType: 
     m_Id: 33400b69-c976-476e-b696-ad7b47d90708
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+    m_Priority: 0
+  cycleAction:
+    m_Name: CycleFeed
+    m_Type: 1
+    m_ExpectedControlType: 
+    m_Id: 52eebb1d-8773-495f-b4d8-696f16209a8d
     m_Processors: 
     m_Interactions: 
     m_SingletonActionBindings: []
@@ -3683,3 +3781,4 @@ SceneRoots:
   - {fileID: 2133145859}
   - {fileID: 1763008068}
   - {fileID: 1430144120}
+  - {fileID: 132471008}

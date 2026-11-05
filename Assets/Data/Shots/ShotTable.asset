@@ -1,0 +1,94 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80aec1a83757a469b84e596985a07b4c, type: 3}
+  m_Name: ShotTable
+  m_EditorClassIdentifier: Assembly-CSharp::ShotTable
+  frontZoneMaxDepth: 2.2
+  backZoneMinDepth: 4.5
+  rules:
+  - note: 'Cross on a smash: lift return'
+    category: 1
+    zones: 7
+    minContactHeight: 0
+    maxContactHeight: 99
+    smashReturn: 1
+    shot: {fileID: 11400000, guid: 9f7d9ff12ad884cbd9b581e1dbfb6503, type: 2}
+  - note: 'Cross overhead: clear'
+    category: 1
+    zones: 7
+    minContactHeight: 2
+    maxContactHeight: 99
+    smashReturn: 0
+    shot: {fileID: 11400000, guid: 4e4ec4b480d5d4d11ba60a902bc7cf36, type: 2}
+  - note: 'Cross below overhead: lift'
+    category: 1
+    zones: 7
+    minContactHeight: 0
+    maxContactHeight: 2
+    smashReturn: 0
+    shot: {fileID: 11400000, guid: 852b04c5881cf44f38c7d29846c3436c, type: 2}
+  - note: 'Square on a smash: block'
+    category: 2
+    zones: 7
+    minContactHeight: 0
+    maxContactHeight: 99
+    smashReturn: 1
+    shot: {fileID: 11400000, guid: f46c12152bb2f424bb8e81483f491df7, type: 2}
+  - note: 'Square overhead, mid/back: drop'
+    category: 2
+    zones: 6
+    minContactHeight: 2
+    maxContactHeight: 99
+    smashReturn: 0
+    shot: {fileID: 11400000, guid: ffa66ded830cd46d6bc85c8fb9785f12, type: 2}
+  - note: 'Square otherwise (front overhead, any low): net drop'
+    category: 2
+    zones: 7
+    minContactHeight: 0
+    maxContactHeight: 99
+    smashReturn: 0
+    shot: {fileID: 11400000, guid: 0e66b757a0ec9451cb4bba0dadb999a8, type: 2}
+  - note: 'Triangle on a smash: counter drive'
+    category: 3
+    zones: 7
+    minContactHeight: 0
+    maxContactHeight: 99
+    smashReturn: 1
+    shot: {fileID: 11400000, guid: dc5c8af31ef284f959003c9610a52609, type: 2}
+  - note: 'Triangle overhead, back: back smash'
+    category: 3
+    zones: 4
+    minContactHeight: 2
+    maxContactHeight: 99
+    smashReturn: 0
+    shot: {fileID: 11400000, guid: 1711e7b696a6143aa823cae14fa3be22, type: 2}
+  - note: 'Triangle overhead, mid: mid smash'
+    category: 3
+    zones: 2
+    minContactHeight: 2
+    maxContactHeight: 99
+    smashReturn: 0
+    shot: {fileID: 11400000, guid: 0c6ace5f63d3f474dabe80fc0d77ceb7, type: 2}
+  - note: 'Triangle overhead, front: front smash'
+    category: 3
+    zones: 1
+    minContactHeight: 2
+    maxContactHeight: 99
+    smashReturn: 0
+    shot: {fileID: 11400000, guid: 1bea942f2a30e47e0844f696a149392b, type: 2}
+  - note: 'Triangle below overhead: drive'
+    category: 3
+    zones: 7
+    minContactHeight: 0
+    maxContactHeight: 99
+    smashReturn: 0
+    shot: {fileID: 11400000, guid: dc5c8af31ef284f959003c9610a52609, type: 2}

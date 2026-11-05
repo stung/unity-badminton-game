@@ -10,12 +10,13 @@ public struct CharacterIntent
     /// Desired movement relative to the character's own side of the court, magnitude 0..1.
     /// y = toward the net, x = to the character's right when facing the net.
     /// Side-relative (not camera-relative) so game logic never depends on a camera.
+    /// Also used as shot aim at contact (x = left/right).
     /// </summary>
     public Vector2 Move;
 
-    /// <summary>True only on the frame the shot was requested.</summary>
-    public bool ShotPressed;
-
-    /// <summary>Which shot to play if ShotPressed is true.</summary>
-    public ShotData Shot;
+    /// <summary>
+    /// Shot category requested this frame (None if no shot button was pressed). The exact shot is
+    /// chosen at contact by ShotTable, because it depends on where the birdie is when it's hit.
+    /// </summary>
+    public ShotCategory ShotRequest;
 }

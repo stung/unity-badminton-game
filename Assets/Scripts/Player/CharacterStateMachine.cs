@@ -12,11 +12,12 @@ public class CharacterStateMachine : MonoBehaviour
 
     [SerializeField] private IntentSource intentSource;
     [SerializeField] private ShotHitter hitter;
+    [SerializeField] private SwingTiming swingTiming;
 
     private CharacterMotor motor;
     private State state = State.Idle;
     private float stateTimer;
-    private ShotData activeShot;
+    private ShotCategory activeCategory;
     private bool hitThisSwing;
 
     public State CurrentState => state;
@@ -41,10 +42,10 @@ public class CharacterStateMachine : MonoBehaviour
         {
             case State.Idle:
             case State.Moving:
-                if (intent.ShotPressed && intent.Shot != null)
+                if (intent.ShotRequest != ShotCategory.None)
                 {
-                    StartSwing(intent.Shot);
-                    speedMultiplier = activeShot.SwingMoveMultiplier;
+                    StartSwing(intent.ShotRequest);
+                    speedMultiplier = swingTiming.SwingMoveMultiplier;
                 }
                 else
                 {
@@ -53,14 +54,14 @@ public class CharacterStateMachine : MonoBehaviour
                 break;
 
             case State.Swinging:
-                speedMultiplier = activeShot.SwingMoveMultiplier;
-                float activeStart = activeShot.Windup;
-                float activeEnd = activeShot.Windup + activeShot.ActiveWindow;
+                speedMultiplier = swingTiming.SwingMoveMultiplier;
+                float activeStart = swingTiming.Windup;
+                float activeEnd = swingTiming.Windup + swingTiming.ActiveWindow;
                 // Test overlap between this frame's time slice and the active window, so a long
                 // frame can't skip straight over the window.
                 if (!hitThisSwing && stateTimer >= activeStart && previousTimer <= activeEnd)
                 {
-                    hitThisSwing = hitter != null && hitter.TryHit(activeShot, intent.Move.x);
+                    hitThisSwing = hitter != null && hitter.TryHit(activeCategory, intent.Move.x);
                 }
                 if (stateTimer >= activeEnd)
                 {
@@ -70,17 +71,17 @@ public class CharacterStateMachine : MonoBehaviour
                 break;
 
             case State.Recovering:
-                speedMultiplier = activeShot.SwingMoveMultiplier;
-                if (stateTimer >= activeShot.Recovery) SetState(State.Idle);
+                speedMultiplier = swingTiming.SwingMoveMultiplier;
+                if (stateTimer >= swingTiming.Recovery) SetState(State.Idle);
                 break;
         }
 
         motor.Tick(intent.Move, speedMultiplier, dt);
     }
 
-    private void StartSwing(ShotData shot)
+    private void StartSwing(ShotCategory category)
     {
-        activeShot = shot;
+        activeCategory = category;
         hitThisSwing = false;
         SetState(State.Swinging);
     }

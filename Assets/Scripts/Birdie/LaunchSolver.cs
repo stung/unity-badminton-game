@@ -37,6 +37,69 @@ public static class LaunchSolver
         return true;
     }
 
+    /// <summary>
+    /// Like TrySolve, but searches launch angles until the shot both reaches the target and clears
+    /// the net by minClearance. Tries the shot's own angle and steeper first (keeps its character;
+    /// low contacts near the net need a steeper arc), then flatter (extra range for far targets,
+    /// e.g. cross-court from deep). If nothing works, returns the attempt that cleared the net best.
+    /// </summary>
+    public static Vector3 SolveClearingNet(Vector3 from, Vector3 target, float startAngleDeg, float minClearance,
+                                           in BirdieFlightParams p, CourtDimensions court, float maxSpeed,
+                                           float maxAngleDeg = 85f, float minAngleDeg = 5f, float angleStepDeg = 5f)
+    {
+        Vector3 best = Vector3.zero;
+        float bestClearance = float.NegativeInfinity;
+        bool haveBest = false;
+
+        for (float angle = startAngleDeg; angle <= maxAngleDeg; angle += angleStepDeg)
+        {
+            if (TryAngle(angle, in p, out Vector3 v)) return v;
+        }
+        for (float angle = startAngleDeg - angleStepDeg; angle >= minAngleDeg; angle -= angleStepDeg)
+        {
+            if (TryAngle(angle, in p, out Vector3 v)) return v;
+        }
+        return best;
+
+        bool TryAngle(float angle, in BirdieFlightParams flight, out Vector3 velocity)
+        {
+            bool inRange = TrySolve(from, target, angle, flight, out velocity, maxSpeed: maxSpeed);
+            float clearance = court != null ? NetClearance(from, velocity, flight, court) : float.PositiveInfinity;
+            if (inRange && clearance >= minClearance) return true;
+            if (!haveBest || clearance > bestClearance)
+            {
+                best = velocity;
+                bestClearance = clearance;
+                haveBest = true;
+            }
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Height (m) above the net tape where the flight crosses the net plane. +infinity if it passes
+    /// outside the posts; -infinity if it lands before reaching the net (a short shot must never
+    /// count as "clearing" it). Simulated without the net so we measure the clean arc.
+    /// </summary>
+    public static float NetClearance(Vector3 from, Vector3 velocity, in BirdieFlightParams p, CourtDimensions court,
+                                     float maxTime = 10f)
+    {
+        var s = new BirdieSimState { Position = from, Velocity = velocity };
+        for (float t = 0f; t < maxTime; t += p.TimeStep)
+        {
+            Vector3 previous = s.Position;
+            BirdieStepResult result = BirdieFlightModel.Step(ref s, p, null);
+            if ((previous.z < 0f) != (s.Position.z < 0f))
+            {
+                float k = previous.z / (previous.z - s.Position.z);
+                Vector3 crossing = Vector3.Lerp(previous, s.Position, k);
+                return Mathf.Abs(crossing.x) <= court.HalfWidth ? crossing.y - court.NetHeight : float.PositiveInfinity;
+            }
+            if (result == BirdieStepResult.Landed) return float.NegativeInfinity;
+        }
+        return float.NegativeInfinity;
+    }
+
     /// <summary>Horizontal distance travelled when the birdie comes down through height y, or -1 if it never does.</summary>
     private static float DistanceAtHeight(Vector3 from, Vector3 velocity, float y, in BirdieFlightParams p, float maxTime)
     {

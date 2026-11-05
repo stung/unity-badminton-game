@@ -3,7 +3,53 @@
 Running log of updates, newest first. Each entry: what changed, why, and anything left open.
 
 ## Next up
-1. **Bot opponent:** a `BotIntentSource` that uses `LandingPredictor` to move under the birdie and clear it back. That completes the current milestone (player vs bot clear rally).
+1. **Shot system stage 2, attacking shots:** fixed-speed / solve-angle mode with net clearance in `LaunchSolver`. Real Back / Mid / Front Smash and Drive assets (replacing the placeholders). **Impact frames (hitstop) on hit**, with length scaling with shot strength, as a visual warning to both players.
+2. **Shot system stage 3, tuning pass:** depths, speeds, reach and timing windows in both physics modes; maybe a more forgiving window for smash returns.
+3. **Bot opponent:** a `BotIntentSource` that uses `LandingPredictor` to get under the birdie and picks a `ShotCategory`, going through the same `ShotTable` as the player.
+
+## TODO / ideas (not scheduled)
+- **Shot imprecision:** shots are perfect for now. Later, degrade shot quality from **low stamina**, **bad positioning** (e.g. reaching at the edge of range or off-balance), and **bad timing** (early/late in the active window). Corner shots should get harder to execute from bad positions (e.g. a full cross-court net drop while stretched). Hook point: `ShotData.GetLaunchVelocity`, between `ChooseTarget` and solving the trajectory.
+- **Fine-tune ShotTable categories:** e.g. should a low Square in the mid/back court be a Drop instead of a Net Drop? (Left as Net Drop for now, deliberately.)
+- **More aim targets for aggressive shots:** left/right **mid-court** spots for smashes and drives (body or half-court smashes), on top of straight and corners.
+- **Contact height shapes the trajectory:** the same button at different contact heights should give different flight paths. For example, a lift from near the floor is a high defensive arc, but at waist height it's flatter and faster. Likely more `ShotTable` rows with narrower height bands and their own shot assets (e.g. Low Lift / High Lift, Flat Drop / Floated Drop). It could also be a height-dependent angle on a single shot.
+- **Input buffering:** accept a shot press slightly before the character can act (e.g. during recovery). Important for the fast, reflex-driven feel.
+- Stamina, diving, scoring, serve, dog art (from `CLAUDE.md`'s later list).
+
+---
+
+## 2026-11-05 — Shot system stage 1: three-button, context-sensitive shots
+
+**Controls**
+- **Cross / J = Defensive**, **Square / K = Precision**, **Triangle / L = Attack**. The old single `Shot` action (Square / Space / J) is gone.
+- Left stick at contact = aim at a **location**, relative to the player. With no sideways input (under 30%, per-shot `sideAimThreshold`) the shot goes straight ahead from where you stand. With left/right input it goes to the **corner** on your left/right: the sideline (0.3 m inside) at that shot's landing depth. So a net drop can cross the whole court, and a back-left drop can land front-right.
+  - First version used a per-shot max angle, which couldn't reach the edges: short shots like net drops only moved about 2.3 m sideways. Replaced the same day.
+- Debug feeder: **L1 / R = feed**, **R1 / T = cycle feed type**. Triangle is free for Attack now.
+
+**How a shot is chosen**
+- The intent now carries a `ShotCategory` instead of a `ShotData`. `ShotHitter` builds a `ShotContext` at contact (court zone from depth, contact height, whether the incoming shot was a smash) and asks `Assets/Data/Shots/ShotTable.asset`. Rules are checked top to bottom and the first match wins:
+
+  | | Cross | Square | Triangle |
+  |---|---|---|---|
+  | Returning a smash | Lift Return | Block | Drive |
+  | Overhead (≥ 2.0 m), back | Clear | Drop | Back Smash |
+  | Overhead, mid | Clear | Drop | Mid Smash |
+  | Overhead, front | Clear | Net Drop | Front Smash |
+  | Below overhead | Lift | Net Drop | Drive |
+
+  Zones: front < 2.2 m from the net, back ≥ 4.5 m (on the ShotTable asset).
+- **Real shots:** Clear, Drop, Net Drop, Lift, Block, Lift Return (fixed angle, speed solved to land at the target depth).
+- **Placeholders until stage 2:** Back/Mid/Front Smash and Drive, which fly like drops. The smash placeholders already count as smashes, so block and lift return can be tested via the feeder.
+
+**Other changes**
+- `LaunchSolver.SolveClearingNet`: raises the launch angle in 5° steps until the arc clears the tape by the shot's `minNetClearance`, so low net drops and blocks don't hit the net.
+- **Fixed:** cross-court Square shots from the back court sometimes didn't reach the net in Realistic mode. Below 2.0 m contact, Square in the back court is a Net Drop, which was capped at 30 m/s, too slow for that distance against real drag. Two solver bugs let it through. (1) A shot that landed before the net counted as "clearing" it, because the clearance check only looked at net crossings. (2) The angle search only tried steeper angles, which are shorter. Now falling short counts as failing, the search also tries flatter angles for extra range, and the Net Drop cap is 60 m/s. Checked in a Python port of the solver: cross-court drops, net drops, blocks and clears from both back corners all land on target in both modes.
+- Reach is now a vertical cylinder (0.1–3.1 m high, 1 m radius around `HitPoint`) instead of a head-height sphere, so low shots can connect.
+- No double hits: `Birdie` remembers `LastShot` and `LastHitter`, and you can't hit your own shot again.
+- Swing timing moved from each shot to a shared `Assets/Data/Shots/SwingTiming.asset`, because the shot isn't known until contact.
+- `DebugFeeder` now plays real shot assets from the far side (Clear, Drop, Net Drop, Lift, Back Smash placeholder), with a random lateral position and aim.
+- Debug readout (top-left): the current feed, and the last shot with its zone, contact height and whether it was a smash return. `PauseMenu` sorts above it.
+
+**Not verified by me:** actual play. MCP can't press buttons, so I only confirmed it compiles and Play mode starts with no errors. (The "PlayerLoop called recursively" errors only appear when the MCP screenshot tool renders during Play mode, not from the game.)
 
 ---
 
