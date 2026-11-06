@@ -15,9 +15,22 @@ Running log of updates, newest first. Each entry: what changed, why, and anythin
 - **Contact height shapes the trajectory:** the same button at different contact heights should give different flight paths. For example, a lift from near the floor is a high defensive arc, but at waist height it's flatter and faster. Likely more `ShotTable` rows with narrower height bands and their own shot assets (e.g. Low Lift / High Lift, Flat Drop / Floated Drop). It could also be a height-dependent angle on a single shot.
 - **Lunging:** a quick boost in the movement direction (greybox: the capsule dashes) to reach wide shots. Likely its own player state with recovery. Ties into stamina later.
 - **Jumping:** for jump smashes / intercepting high shots. Raises contact height, which the ShotTable already uses.
-- **Visible racket:** a greybox racket (e.g. a thin cylinder plus a flat disc) that swings with the Swinging state, for clearer timing feedback and so a whiff is visible.
+- **Arm + racket-driven hitbox:** today the racket is purely visual. Contact uses an invisible reach cylinder around `HitPoint`, so a swing at empty air still connects if the birdie is anywhere in range (accepted for the prototype). Later: add an arm (shoulder → elbow → hand) holding the racket, and make contact depend on the **racket head's actual path** during the active window (a swept sphere between frames so fast swings can't skip past the birdie). Reach then comes from body + arm + racket, which lunges extend naturally. Fighting-game-style "active frames" fit the reflex feel, but this raises timing difficulty and the bot must use the same reach model.
+- **Per-shot swing animations:** every shot currently uses the same overhead swing. Add underarm (lifts, net drops, blocks), flat (drives) and steeper (smashes) swings. Catch: the shot is only decided at contact, so the swing must start before the shot is known. Options: pick the swing at press time from the birdie's predicted contact height, or blend into the right swing at contact.
 - **Input buffering:** accept a shot press slightly before the character can act (e.g. during recovery). Important for the fast, reflex-driven feel.
 - Stamina, diving, scoring, serve, dog art (from `CLAUDE.md`'s later list).
+
+---
+
+## 2026-11-06 — Greybox racket + overhead swing
+
+- `Assets/Prefabs/Racket.prefab`: greybox racket at real proportions (about 0.68 m): cylinder handle and shaft, oval head as a dark frame disc plus a lighter strings disc. New materials `RacketFrame` and `RacketStrings`.
+- Scene: `Player/RacketPivot` (right shoulder, local (0.4, 1.45, 0.05)) holds the racket prefab instance.
+- `Scripts/Player/RacketSwingView`: procedural swing on the pivot, driven by `CharacterStateMachine` state + `StateTime` and the shared `SwingTiming`. Ready pose 35° forward → cocked -120° during windup → sweeps to 125° follow-through across the active window (ease-in-out, so it whips through overhead while contact is possible) → eases back to ready over recovery. A slight roll gives the arc some shape.
+  - Procedural (not an Animator clip) so it always matches the real hit window when timings are tuned.
+  - Runs on game time, so it **freezes mid-swing during hitstop**.
+- `CharacterStateMachine` now exposes `StateTime` and `SwingTiming` (read-only) for views.
+- Same overhead swing for every shot for now (see TODO).
 
 ---
 

@@ -21,6 +21,9 @@ public class CharacterStateMachine : MonoBehaviour
     private bool hitThisSwing;
 
     public State CurrentState => state;
+    /// <summary>Seconds spent in the current state (game time, so it holds still during hitstop).</summary>
+    public float StateTime => stateTimer;
+    public SwingTiming SwingTiming => swingTiming;
     public event Action<State> StateChanged;
     /// <summary>Fired once per swing when the active window closes. Arg: whether it connected.</summary>
     public event Action<bool> SwingResolved;
