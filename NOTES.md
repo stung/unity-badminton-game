@@ -22,6 +22,14 @@ Running log of updates, newest first. Each entry: what changed, why, and anythin
 
 ---
 
+## 2026-11-07 — CLAUDE.md: communication and commit rules
+
+- New **Communication** section: use game dev terms with a brief explanation, and explain dev-side concepts rather than assuming them.
+- New **Workflow** rule: don't commit or push until confirmed; approval for one commit or push doesn't carry over to the next.
+- Copied from the cloud branch `claude/confident-einstein-983pcr` (commits `1726bc4`, `a361fdd`). That branch is still on the remote and has no game code.
+
+---
+
 ## 2026-11-06 — Greybox racket + overhead swing
 
 - `Assets/Prefabs/Racket.prefab`: greybox racket at real proportions (about 0.68 m): cylinder handle and shaft, oval head as a dark frame disc plus a lighter strings disc. New materials `RacketFrame` and `RacketStrings`.

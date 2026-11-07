@@ -25,9 +25,14 @@ Later (do NOT build unless asked): other shots (drop, smash, net, drive), diving
 - Expose tuning values (speeds, drag, power) in the Inspector so I can adjust them without code changes
 - Comment the "why" for anything non-obvious, especially physics or timing code
 
+## Communication
+- Use game dev terminology whenever appropriate, so I learn the vocabulary. If a term isn't immediately obvious, add a brief summary of what it means the first time it comes up (e.g. "coyote time: a short grace window where a jump still works after leaving a ledge").
+- I know gaming terms as a player, mostly from action games (e.g. frame data, hitstop, i-frames), but not from the developer's side. Explain dev-side concepts (e.g. interpolation, state machines, fixed timestep, root motion) rather than assuming them.
+
 ## Workflow
 - Before big changes, propose a plan and wait for my approval
 - After changing scripts, check the Unity console for compile errors and fix them
 - Do not edit scenes or prefabs unless I ask, or tell me first, since I may have them open in the editor
 - Do not add third-party packages or assets without asking. Prefer free CC0 assets (e.g. Kenney.nl) and never generate AI assets.
+- Do not commit or push until I confirm. Suggest a commit (with a proposed message) and wait for my go-ahead; approval for one commit/push does not carry over to the next.
 - Make small, working steps. Suggest a git commit when something works. Update NOTES.md with things done and what next milestones are.
