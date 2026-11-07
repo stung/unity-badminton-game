@@ -25,6 +25,10 @@ Later (do NOT build unless asked): other shots (drop, smash, net, drive), diving
 - Expose tuning values (speeds, drag, power) in the Inspector so I can adjust them without code changes
 - Comment the "why" for anything non-obvious, especially physics or timing code
 
+## Communication
+- Use game dev terminology whenever appropriate, so I learn the vocabulary. If a term isn't immediately obvious, add a brief summary of what it means the first time it comes up (e.g. "coyote time: a short grace window where a jump still works after leaving a ledge").
+- I know gaming terms as a player, mostly from action games (e.g. frame data, hitstop, i-frames), but not from the developer's side. Explain dev-side concepts (e.g. interpolation, state machines, fixed timestep, root motion) rather than assuming them.
+
 ## Workflow
 - Before big changes, propose a plan and wait for my approval
 - After changing scripts, check the Unity console for compile errors and fix them
