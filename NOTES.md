@@ -7,6 +7,10 @@ Running log of updates, newest first. Each entry: what changed, why, and anythin
 2. **Bot opponent:** a `BotIntentSource` that uses `LandingPredictor` to get under the birdie and picks a `ShotCategory`, going through the same `ShotTable` as the player.
 
 ## TODO / ideas (not scheduled)
+- **Tune the racket hitbox:** the dog's reach area is still a tuning placeholder (0.8 m radius, 0.05–2.8 m high, centred 0.6 m ahead).
+- **Dive:** when dash and jump are pressed together, do a dive.
+- **Stamina affects gameplay:** the stamina bar is meant to change what the player can do, not just display.
+- **Stamina between points:** in a real game, replenish stamina slowly between points, so players don't start each point with a full bar.
 - **Shot imprecision:** shots are perfect for now. Later, degrade shot quality from **low stamina**, **bad positioning** (e.g. reaching at the edge of range or off-balance), and **bad timing** (early/late in the active window). Corner shots should get harder to execute from bad positions (e.g. a full cross-court net drop while stretched). Hook point: `ShotData.GetLaunchVelocity`, between `ChooseTarget` and solving the trajectory.
 - **Revisit the feel of the birdie:** drag, top falling speed, how hard it "stalls", shot speeds vs reaction time. Do it once more shots and the bot exist, so it's judged in real rallies.
 - **Arcade physics mode:** parked as of 2026-11-06. Two physics modes double the shot tuning, so all tuning targets **Realistic** for now. Arcade still exists in the Options menu but its shots aren't tuned. Revisit once Realistic feels right (it may need its own per-profile shot values).
@@ -19,6 +23,30 @@ Running log of updates, newest first. Each entry: what changed, why, and anythin
 - **Per-shot swing animations:** every shot currently uses the same overhead swing. Add underarm (lifts, net drops, blocks), flat (drives) and steeper (smashes) swings. Catch: the shot is only decided at contact, so the swing must start before the shot is known. Options: pick the swing at press time from the birdie's predicted contact height, or blend into the right swing at contact.
 - **Input buffering:** accept a shot press slightly before the character can act (e.g. during recovery). Important for the fast, reflex-driven feel.
 - Stamina, diving, scoring, serve, dog art (from `CLAUDE.md`'s later list).
+
+---
+
+## 2026-11-07 — Dog version in a new scene (DogCourt)
+
+Rebuilt locally from a cloud session's summary, because that session's files were never pushed. `Court.unity` and its assets are unchanged.
+
+**The dog (`Assets/Scenes/DogCourt.unity`)**
+- Sideways capsule: 0.9 m long, 0.35 m wide, back at 0.55 m. `Nose` replaces `FacingNub`. Speed stays 5 m/s.
+- Racket held flat in the mouth, gripped mid-handle. `RacketPivot` is rotated so the existing `RacketSwingView` sweeps it horizontally: 0° (ready, sticking out to the dog's right), -30° (cocked), 210° (follow-through), no roll. Its 90° midpoint is straight ahead. Visual only.
+- Reach: 0.8 m radius, 0.05–2.8 m high, centred 0.6 m ahead of the dog (`HitPoint`).
+- Net 0.70 m via `Assets/Data/Court/DogCourt.asset`, full-size court. `Assets/Data/Shots/DogShotTable.asset` has the same rules with overhead starting at 0.9 m instead of 2.0 m.
+- Feeder heights about halved: 1.3, 1.3, 0.5, 0.3, 1.4, 1.35, 0.65 m. Birdie physics, shot assets and camera unchanged.
+
+**New scripts**
+- `Player/CharacterFacing`: snaps to face the stick direction past 20% and keeps the last facing on release. Facing moves the reach area but not shot direction. Locked during the swing, so the stick is free to aim; also locked during recovery (`lockDuringRecovery`, on by default). No turning during pause or hitstop.
+- `Match/NetVisual`: sizes the net mesh, tape and posts from the court asset, in Edit mode too.
+- `CharacterStateMachine.LastIntent`: exposes this frame's intent so facing doesn't read the `IntentSource` twice. `CharacterMotor` still sets its starting rotation, so far-side characters begin facing the net.
+
+**Reach height vs timing window:** "time to press" is the birdie's time in reach plus the 0.25 s active window. At 1.4 m it was 0.47 s (clear) and 0.48 s (lift). The 2.8 m reach gives 0.69 s (+47%) and 0.76 s (+58%). If "50%" should mean time in reach instead, that's about 2.0 m.
+
+**Verified:** compiles, Play mode runs with no console errors or warnings, and the net and dog look right in Edit mode. With simulated keys, the dog turned with the stick, held facing through swing and recovery while `D` was held, the shot aimed right from that same stick, and it turned once recovery ended. Solver: straight and corner smashes, clears and drops from 2.8 m contact land in court at full pace (front smash also checked at 2.0 m).
+
+**Not verified:** how it feels on the DualSense, racket swing look in motion, camera at dog scale. Contact up to 2.8 m with no jump may look odd against a 0.55 m dog. DogCourt isn't in Build Settings (only matters for builds).
 
 ---
 

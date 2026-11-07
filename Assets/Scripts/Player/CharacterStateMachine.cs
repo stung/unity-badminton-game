@@ -24,6 +24,8 @@ public class CharacterStateMachine : MonoBehaviour
     /// <summary>Seconds spent in the current state (game time, so it holds still during hitstop).</summary>
     public float StateTime => stateTimer;
     public SwingTiming SwingTiming => swingTiming;
+    /// <summary>This frame's intent, so other scripts don't read the IntentSource a second time.</summary>
+    public CharacterIntent LastIntent { get; private set; }
     public event Action<State> StateChanged;
     /// <summary>Fired once per swing when the active window closes. Arg: whether it connected.</summary>
     public event Action<bool> SwingResolved;
@@ -37,6 +39,7 @@ public class CharacterStateMachine : MonoBehaviour
     {
         float dt = Time.deltaTime;
         CharacterIntent intent = intentSource.ReadIntent();
+        LastIntent = intent;
         float previousTimer = stateTimer;
         stateTimer += dt;
         float speedMultiplier = 1f;

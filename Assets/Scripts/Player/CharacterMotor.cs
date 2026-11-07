@@ -2,7 +2,7 @@ using UnityEngine;
 
 /// <summary>
 /// Moves a character kinematically (no Rigidbody) with acceleration/deceleration,
-/// clamped to its half of the court. Always faces the net, as badminton players do.
+/// clamped to its half of the court. Starts facing the net; add CharacterFacing to turn after that.
 /// </summary>
 [RequireComponent(typeof(CourtSide))]
 public class CharacterMotor : MonoBehaviour
