@@ -34,4 +34,5 @@ Later (do NOT build unless asked): other shots (drop, smash, net, drive), diving
 - After changing scripts, check the Unity console for compile errors and fix them
 - Do not edit scenes or prefabs unless I ask, or tell me first, since I may have them open in the editor
 - Do not add third-party packages or assets without asking. Prefer free CC0 assets (e.g. Kenney.nl) and never generate AI assets.
+- Do not commit or push until I confirm. Suggest a commit (with a proposed message) and wait for my go-ahead; approval for one commit/push does not carry over to the next.
 - Make small, working steps. Suggest a git commit when something works. Update NOTES.md with things done and what next milestones are.
