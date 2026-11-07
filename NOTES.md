@@ -3,9 +3,13 @@
 Running log of updates, newest first. Each entry: what changed, why, and anything left open.
 
 ## Next up
-1. **Shot system stage 3, tuning pass (Realistic only):** depths, speeds, reach and timing windows; hitstop and shake amounts; maybe a more forgiving window for smash returns. Consider a higher minimum contact height for smashes: from 2.0 m contact, a mid/front "smash" often has to take pace off (fallback) and comes out slow.
+1. **Aim left or right without moving the hitbox (urgent):** the left stick sets both shot aim and facing, and the reach area sits in front of the dog. Holding a direction to aim before pressing a shot turns the dog, which moves its hitbox away from the birdie. Facing only locks once the swing starts.
+2. **Shot system stage 3, tuning pass (Realistic only):** depths, speeds, reach and timing windows; hitstop and shake amounts; maybe a more forgiving window for smash returns. Consider a higher minimum contact height for smashes: from 2.0 m contact, a mid/front "smash" often has to take pace off (fallback) and comes out slow.
 
 ## TODO / ideas (not scheduled)
+- **Different dogs:** selectable dogs with different characteristics, such as speed, size and maybe power.
+- **Supers (idea to consider):** special moves.
+- **Visible hitbox (idea to consider):** show the reach area in-game, not just as an Editor gizmo.
 - **Serves:** real serves to replace starting each point with a feed.
 - **Adjustable bot difficulty:** the first bot only plays easy Defensive (X) shots, for easier testing. Letting it dash would likely help it return smashes.
 - **More official Training debug screen:** make the feeder and shot readout look like a proper part of Training mode, and leave it out of Bot mode.
