@@ -13,6 +13,7 @@ Running log of updates, newest first. Each entry: what changed, why, and anythin
 - **Tune the racket hitbox:** the dog's reach area is still a tuning placeholder (0.8 m radius, 0.05–2.8 m high, centred 0.6 m ahead).
 - **Dive:** when dash and jump are pressed together, do a dive.
 - **Stamina affects gameplay:** the stamina bar is meant to change what the player can do, not just display.
+- **Stamina for smashing:** smashes should cost stamina too, so you can't smash continuously (`ShotData` already has an unused `staminaCost`). The bot has no stamina yet, so it would need it as well to play by the same rules.
 - **Stamina between points:** in a real game, replenish stamina slowly between points, so players don't start each point with a full bar.
 - **Shot imprecision:** shots are perfect for now. Later, degrade shot quality from **low stamina**, **bad positioning** (e.g. reaching at the edge of range or off-balance), and **bad timing** (early/late in the active window). Corner shots should get harder to execute from bad positions (e.g. a full cross-court net drop while stretched). Hook point: `ShotData.GetLaunchVelocity`, between `ChooseTarget` and solving the trajectory.
 - **Revisit the feel of the birdie:** drag, top falling speed, how hard it "stalls", shot speeds vs reaction time. Do it once more shots and the bot exist, so it's judged in real rallies.
