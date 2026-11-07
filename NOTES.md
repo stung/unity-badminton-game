@@ -24,6 +24,15 @@ Running log of updates, newest first. Each entry: what changed, why, and anythin
 
 ---
 
+## 2026-11-07 — Puppy look: white body, face and legs
+
+- White body and legs, black face, using new `DogWhite` and `DogBlack` materials. `Player.mat` is shared with the human in `Court.unity`, so it stays blue.
+- `Player/Face`: two eyes, a nose and a `:3` mouth (two small arcs of short strokes), replacing the old `Nose` cube. All visual, with no colliders. The dog still faces away from the camera most of the time, so the face mainly shows when it turns or runs toward the camera.
+- Four jointless stick legs, each on a hip pivot (`LegFrontLeft` and so on).
+- `Player/LegSwingView`: swings diagonal pairs opposite each other, scaled by actual speed, so it's small at a walk, quicker in a dash, and settles when stopped. Legs keep swinging in the air at a set rate (`Air Swing Speed`), including in a jump straight up, and freeze during hitstop. Tune `Max Swing Angle` and `Swings Per Second` in the Inspector.
+
+---
+
 ## 2026-11-07 — Dash, jump and stamina bar
 
 **Controls:** R2 / Left Shift = dash, L2 / Space = jump.
