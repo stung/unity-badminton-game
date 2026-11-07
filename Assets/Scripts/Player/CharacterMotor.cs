@@ -30,6 +30,7 @@ public class CharacterMotor : MonoBehaviour
     private CourtSide courtSide;
     private Vector3 velocity;
     private float groundHeight;
+    private Vector3 startPosition;
 
     private Vector3 dashDirection;
     private float dashDistanceLeft;
@@ -46,6 +47,21 @@ public class CharacterMotor : MonoBehaviour
     {
         courtSide = GetComponent<CourtSide>();
         groundHeight = transform.position.y;
+        startPosition = transform.position;
+        transform.rotation = Quaternion.LookRotation(courtSide.TowardNet, Vector3.up);
+    }
+
+    /// <summary>Back to the starting spot, still and facing the net.</summary>
+    public void ResetToStart() => ResetTo(startPosition);
+
+    /// <summary>Moves to a spot on the ground, still and facing the net.</summary>
+    public void ResetTo(Vector3 position)
+    {
+        velocity = Vector3.zero;
+        IsAirborne = false;
+        dashDistanceLeft = 0f;
+        position.y = groundHeight;
+        transform.position = position;
         transform.rotation = Quaternion.LookRotation(courtSide.TowardNet, Vector3.up);
     }
 

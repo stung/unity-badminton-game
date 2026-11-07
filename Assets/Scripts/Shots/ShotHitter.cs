@@ -23,6 +23,7 @@ public class ShotHitter : MonoBehaviour
 
     private CourtSide courtSide;
     private CharacterMotor motor;
+    private CourtDimensions aimCourt;
 
     /// <summary>Raised on every successful hit, for feedback/debug UI.</summary>
     public event Action<ShotData, ShotContext> ShotPlayed;
@@ -37,11 +38,14 @@ public class ShotHitter : MonoBehaviour
     // the birdie can be met earlier, but low shots go out of reach while in the air.
     private float Lift => motor != null ? motor.HeightAboveGround : 0f;
 
+    /// <summary>The boundaries shots aim inside, such as singles sidelines. Null uses the full court.</summary>
+    public void SetAimCourt(CourtDimensions court) => aimCourt = court;
+
     /// <param name="aimX">-1..1 sideways aim at contact, relative to this character facing the net.</param>
     /// <returns>True if the birdie was hit.</returns>
     public bool TryHit(ShotCategory category, float aimX)
     {
-        if (birdie == null || !birdie.IsInFlight || !InReach(birdie.Position)) return false;
+        if (birdie == null || !birdie.IsInFlight || !CanReach(birdie.Position)) return false;
         // No double hits: you can't play the birdie again until the opponent has.
         if (ReferenceEquals(birdie.LastHitter, this)) return false;
 
@@ -55,13 +59,15 @@ public class ShotHitter : MonoBehaviour
             return false;
         }
 
-        Vector3 velocity = shot.GetLaunchVelocity(contact, courtSide.TowardNet, aimX, courtSide.Court, birdie.FlightParams);
+        CourtDimensions court = aimCourt != null ? aimCourt : courtSide.Court;
+        Vector3 velocity = shot.GetLaunchVelocity(contact, courtSide.TowardNet, aimX, court, birdie.FlightParams);
         birdie.Launch(contact, velocity, shot, this);
         ShotPlayed?.Invoke(shot, context);
         return true;
     }
 
-    private bool InReach(Vector3 point)
+    /// <summary>Whether a point is inside the character's reach right now.</summary>
+    public bool CanReach(Vector3 point)
     {
         // A vertical cylinder rather than a sphere: contact can be anywhere from the floor to
         // full overhead stretch, which low shots (lifts, net drops, blocks) need.

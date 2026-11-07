@@ -19,8 +19,12 @@ public class PauseController : MonoBehaviour
     private float lastToggleTime = float.NegativeInfinity;
 
     public bool IsPaused { get; private set; }
+    /// <summary>While true, Resume keeps the game paused and raises ResumeHeld instead, for menus that must stay up.</summary>
+    public bool HoldOpen { get; set; }
     public event Action Paused;
     public event Action Resumed;
+    /// <summary>Raised when something tried to resume during HoldOpen.</summary>
+    public event Action ResumeHeld;
 
     public void Pause()
     {
@@ -41,6 +45,14 @@ public class PauseController : MonoBehaviour
     public void Resume()
     {
         if (!IsPaused || !GuardElapsed()) return;
+        if (HoldOpen)
+        {
+            // Guard timer set after the event, because a listener may release the hold and resume
+            // for real, and that nested Resume must get past the guard.
+            ResumeHeld?.Invoke();
+            lastToggleTime = Time.unscaledTime;
+            return;
+        }
         IsPaused = false;
         lastToggleTime = Time.unscaledTime;
         gameTime.SetPaused(false);

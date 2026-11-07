@@ -4,7 +4,14 @@
         <ui:VisualElement name="pause-panel" class="panel">
             <ui:Label text="PAUSED" class="title" />
             <ui:Button name="resume-button" text="Resume" class="menu-button" />
+            <ui:Button name="game-mode-button" class="menu-button option-row">
+                <ui:Label text="Game Mode" class="option-name" />
+                <ui:Label name="game-mode-value" text="&lt;  Training  &gt;" class="option-value" />
+            </ui:Button>
             <ui:Button name="options-button" text="Options" class="menu-button" />
+        </ui:VisualElement>
+        <ui:VisualElement name="game-over-panel" class="panel">
+            <ui:Button name="retry-button" text="Retry" class="menu-button" />
         </ui:VisualElement>
         <ui:VisualElement name="options-panel" class="panel">
             <ui:Label text="OPTIONS" class="title" />

@@ -28,6 +28,11 @@ public class CharacterStateMachine : MonoBehaviour
     public SwingTiming SwingTiming => swingTiming;
     /// <summary>This frame's intent, so other scripts don't read the IntentSource a second time.</summary>
     public CharacterIntent LastIntent { get; private set; }
+    /// <summary>
+    /// While locked, the character can't start anything or walk, but it can still turn on the spot
+    /// (CharacterFacing reads LastIntent, which keeps the stick), and a swing or jump in progress finishes.
+    /// </summary>
+    public bool IsLocked { get; set; }
     public event Action<State> StateChanged;
     /// <summary>Fired once per swing when the active window closes. Arg: whether it connected.</summary>
     public event Action<bool> SwingResolved;
@@ -46,6 +51,7 @@ public class CharacterStateMachine : MonoBehaviour
         float dt = Time.deltaTime;
         CharacterIntent intent = intentSource.ReadIntent();
         LastIntent = intent;
+        if (IsLocked) intent = default;
         float previousTimer = stateTimer;
         stateTimer += dt;
         float speedMultiplier = 1f;
@@ -108,6 +114,27 @@ public class CharacterStateMachine : MonoBehaviour
         {
             motor.Tick(intent.Move, speedMultiplier, dt);
         }
+    }
+
+    /// <summary>Drops whatever the character is doing and puts it back at its starting spot.</summary>
+    public void ResetToStart()
+    {
+        DropCurrentAction();
+        motor.ResetToStart();
+    }
+
+    /// <summary>Drops whatever the character is doing and puts it at a spot on the ground.</summary>
+    public void ResetTo(Vector3 position)
+    {
+        DropCurrentAction();
+        motor.ResetTo(position);
+    }
+
+    private void DropCurrentAction()
+    {
+        hitThisSwing = false;
+        SetState(State.Idle);
+        stateTimer = 0f;
     }
 
     private void StartSwing(ShotCategory category)

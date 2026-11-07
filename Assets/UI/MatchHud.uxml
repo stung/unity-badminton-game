@@ -1,0 +1,12 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="MatchHud.uss" />
+    <!-- picking-mode Ignore everywhere so the HUD never blocks clicks. -->
+    <ui:VisualElement name="match-hud" class="match-hud" picking-mode="Ignore">
+        <ui:Label name="scoreboard" text="You 0 – Bot 0" class="scoreboard" picking-mode="Ignore" />
+        <ui:VisualElement name="centre" class="centre" picking-mode="Ignore">
+            <ui:Label name="big-score" text="0 – 0" class="big-score" picking-mode="Ignore" />
+            <ui:Label name="start-prompt" text="Press R1" class="start-prompt" picking-mode="Ignore" />
+            <ui:Label name="game-text" text="Game" class="game-text" picking-mode="Ignore" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

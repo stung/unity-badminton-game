@@ -24,6 +24,7 @@ public class LandingMarker : MonoBehaviour
         if (birdie == null) return;
         birdie.Launched += HandleLaunched;
         birdie.Landed += HandleLanded;
+        birdie.Cleared += HandleCleared;
     }
 
     private void OnDisable()
@@ -31,6 +32,7 @@ public class LandingMarker : MonoBehaviour
         if (birdie == null) return;
         birdie.Launched -= HandleLaunched;
         birdie.Landed -= HandleLanded;
+        birdie.Cleared -= HandleCleared;
     }
 
     private void HandleLaunched(LandingPrediction prediction)
@@ -43,6 +45,11 @@ public class LandingMarker : MonoBehaviour
     }
 
     private void HandleLanded(Vector3 point)
+    {
+        markerRenderer.enabled = false;
+    }
+
+    private void HandleCleared()
     {
         markerRenderer.enabled = false;
     }

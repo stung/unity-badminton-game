@@ -1,0 +1,54 @@
+/* Match HUD. Sizes assume the 1920x1080 reference resolution. */
+.match-hud {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+/* Upper left, the same box style as the debug readout. */
+.scoreboard {
+    position: absolute;
+    left: 24px;
+    top: 24px;
+    padding: 12px 18px;
+    border-radius: 8px;
+    font-size: 34px;
+    color: rgb(240, 240, 240);
+    background-color: rgba(0, 0, 0, 0.5);
+    -unity-font-style: bold;
+}
+
+/* Above the middle of the screen, so it stays clear of the dogs on the court. */
+.centre {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 18%;
+    align-items: center;
+}
+
+.big-score,
+.start-prompt,
+.game-text {
+    padding: 8px 32px;
+    border-radius: 12px;
+    color: rgb(255, 255, 255);
+    background-color: rgba(0, 0, 0, 0.5);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.big-score {
+    font-size: 110px;
+}
+
+.start-prompt {
+    margin-top: 12px;
+    font-size: 44px;
+}
+
+.game-text {
+    font-size: 130px;
+}

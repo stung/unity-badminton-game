@@ -4,9 +4,12 @@ Running log of updates, newest first. Each entry: what changed, why, and anythin
 
 ## Next up
 1. **Shot system stage 3, tuning pass (Realistic only):** depths, speeds, reach and timing windows; hitstop and shake amounts; maybe a more forgiving window for smash returns. Consider a higher minimum contact height for smashes: from 2.0 m contact, a mid/front "smash" often has to take pace off (fallback) and comes out slow.
-2. **Bot opponent:** a `BotIntentSource` that uses `LandingPredictor` to get under the birdie and picks a `ShotCategory`, going through the same `ShotTable` as the player.
 
 ## TODO / ideas (not scheduled)
+- **Serves:** real serves to replace starting each point with a feed.
+- **Adjustable bot difficulty:** the first bot only plays easy Defensive (X) shots, for easier testing. Letting it dash would likely help it return smashes.
+- **More official Training debug screen:** make the feeder and shot readout look like a proper part of Training mode, and leave it out of Bot mode.
+- **Birdies that clip the net (very much a nice-to-have):** a shot just catching the tape could trickle over or drop short. There are ways to fake this without very realistic physics.
 - **Tune the racket hitbox:** the dog's reach area is still a tuning placeholder (0.8 m radius, 0.05–2.8 m high, centred 0.6 m ahead).
 - **Dive:** when dash and jump are pressed together, do a dive.
 - **Stamina affects gameplay:** the stamina bar is meant to change what the player can do, not just display.
@@ -21,6 +24,45 @@ Running log of updates, newest first. Each entry: what changed, why, and anythin
 - **Per-shot swing animations:** every shot currently uses the same overhead swing. Add underarm (lifts, net drops, blocks), flat (drives) and steeper (smashes) swings. Catch: the shot is only decided at contact, so the swing must start before the shot is known. Options: pick the swing at press time from the birdie's predicted contact height, or blend into the right swing at contact.
 - **Input buffering:** accept a shot press slightly before the character can act (e.g. during recovery). Important for the fast, reflex-driven feel.
 - Stamina, diving, scoring, serve, dog art (from `CLAUDE.md`'s later list).
+
+---
+
+## 2026-11-08 — Bot and Game Mode, stage 2: match rules
+
+**Flow** (`Match/MatchController`): the score shows for 1 s, then "Press R1" (R1 / T). After the rally, everything holds for 0.75 s. First to 5 wins, with no deuce. Then "Game" shows for 1 s, followed by the Retry menu. Retry starts at 0-0 with the human serving. All timings and the winning score are Inspector values.
+
+**Rules**
+- `Match/PointRules`: landing in bounds, that side loses; out of bounds, the hitter loses. A net hit drops on the hitter's side, so it needs no rule of its own.
+- Singles width in Bot mode: `Assets/Data/Court/DogCourtSingles.asset` (5.18 m). `ShotHitter.SetAimCourt` makes corner shots aim for it; Training stays doubles width.
+- The point winner serves next, and the human serves first. Both dogs stand on their own right when the server's score is even and their own left when it's odd, which puts them diagonally opposite.
+- R1 launches a Clear from the server to the receiver's side (`ShotData.GetLaunchVelocityToward`), even when the bot is serving. The birdie waits at the server until then.
+
+**Lock:** `CharacterStateMachine.IsLocked` from landing until R1. No walking, swinging, dashing or jumping, but a human can still spin, and a swing or jump in progress finishes.
+
+**UI:** `UI/MatchHudView` + `Assets/UI/MatchHud.uxml/.uss`: scoreboard upper left, big score, start prompt, Game text. Debug readout hidden in Bot mode. The Retry menu is the pause menu held open (`PauseController.HoldOpen`). At game over, Options / Esc / Circle swaps between Retry and the pause menu, so Game Mode stays reachable. Stamina carries between points and refills on Retry and on mode changes.
+
+**Verified:** compiles, no console errors or warnings. Scripted full game to 3-5 with simulated keys: sides, serving, lock, launches and singles aiming (corners stop at ±2.30 m). Out-of-bounds rule cases checked directly, because perfect shots never landed out. Retry, the menu swap, game over to Training, and mid-rally to Training. `Court.unity` still pauses with no errors, though its Game Mode row does nothing there.
+
+**Fixed along the way:** choosing Training from the game-over menu changed mode but left the game paused, because the resume guard blocked the real resume.
+
+**Not verified:** a match played by hand, R1 and Retry on the DualSense, and how the timings feel.
+
+---
+
+## 2026-11-07 — Bot and Game Mode, stage 1: rallying
+
+- **Game Mode:** new first-level pause menu row, Training or Bot. The choice takes effect on leaving the menu, by any exit, and resets everything (`GameModeController`). Picking the mode you're already in does nothing. It's remembered between launches. Training works as before; the bot only exists in Bot mode.
+- `Bot/BotIntentSource`: produces the same intent as a human, so same speed, reach, swing timing and `ShotTable`. It waits 0.15 s after each shot (lowered from 0.25 s), walks at the predicted landing spot until its reach covers it, swings when the birdie will be in reach after the windup, and otherwise returns home (3.5 m from the net). X shots only, 50% straight and 25% to each corner. No dash or jump, and no stamina.
+- `Bot` object in `DogCourt.unity`: lavender (`DogLavender`), angry brows, far side.
+- `Match/RallyStarter`: R1 / T (new `StartPoint` action) launches a Clear from the human's position, with no swing. `Birdie.Clear`, `CharacterStateMachine.ResetToStart` and `CharacterStamina.Refill` support the reset.
+
+**Verified:** compiles, no console errors or warnings. With a simulated T press and scripted shots from the human's side, at a low background frame rate: the launch and all 15 clears, drops, net drops, lifts and drives were returned, aimed straight or at corners. All 6 mid and back smashes beat it, even ones landing about 1 m from it. Switching modes both ways shows and hides the bot and feeder, and resets the birdie, player and stamina.
+
+**Reaction delay at 0.15 s:** 0 of 9 mid, back and front smashes returned, including straight ones landing within about 0.7 m of the bot. The test ran at about 17 fps in the background. A fast smash can cross most of the reach between frames at that rate, and the bot's swing check only looks at one point in time, so the result may not match normal play.
+
+**Not verified:** a real human rally on the DualSense, and picking Game Mode with a real controller (navigation events were sent to the row directly). Smashes may be too reliable a win against this bot, so judge that in play.
+
+Stage 2 (the entry above) replaced R1's stage 1 behaviour.
 
 ---
 

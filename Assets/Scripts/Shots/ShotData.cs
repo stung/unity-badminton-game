@@ -137,6 +137,20 @@ public class ShotData : ScriptableObject
     }
 
     /// <summary>
+    /// Like a straight shot, but landing at a chosen sideways position, for launches aimed at a
+    /// player rather than steered by a stick. Uses the TargetDepth solve, whatever the aim mode.
+    /// </summary>
+    public Vector3 GetLaunchVelocityToward(Vector3 from, Vector3 towardNet, float targetX, CourtDimensions court,
+                                           in BirdieFlightParams flight)
+    {
+        towardNet.y = 0f;
+        towardNet = towardNet.normalized;
+        Vector3 target = ChooseTarget(from, towardNet, 0f, court);
+        target.x = targetX;
+        return LaunchSolver.SolveClearingNet(from, target, launchAngleDeg, minNetClearance, flight, court, maxSpeed);
+    }
+
+    /// <summary>
     /// Players aim at a spot, not an angle: straight ahead from where they stand, or the corner on
     /// their left/right, always at this shot's target depth. Aiming at points means a short net drop
     /// can still cross the whole court.

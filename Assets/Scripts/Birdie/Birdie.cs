@@ -25,6 +25,7 @@ public class Birdie : MonoBehaviour
     private Vector3 previousSimPosition;
     private float accumulator;
     private LandingPrediction prediction;
+    private Vector3 startPosition;
 
     public FlightState State { get; private set; } = FlightState.Idle;
     public bool IsInFlight => State == FlightState.InFlight;
@@ -33,6 +34,8 @@ public class Birdie : MonoBehaviour
     public Vector3 Velocity => sim.Velocity;
     /// <summary>Params the NEXT launch will use (for solvers planning a shot). The current flight uses activeParams.</summary>
     public BirdieFlightParams FlightParams => flightProfile != null ? flightProfile.Params : BirdieFlightParams.Default;
+    /// <summary>Params of the current flight, for anything looking ahead along it.</summary>
+    public BirdieFlightParams ActiveParams => activeParams;
     public BirdieFlightProfile FlightProfile => flightProfile;
     public CourtDimensions Court => court;
     public LandingPrediction Prediction => prediction;
@@ -46,11 +49,31 @@ public class Birdie : MonoBehaviour
 
     public event Action<LandingPrediction> Launched;
     public event Action<Vector3> Landed;
+    /// <summary>Raised when the birdie is taken out of play by Clear.</summary>
+    public event Action Cleared;
 
     private void Awake()
     {
-        sim.Position = transform.position;
+        startPosition = transform.position;
+        sim.Position = startPosition;
         previousSimPosition = sim.Position;
+    }
+
+    /// <summary>Takes the birdie out of play and puts it back where it started.</summary>
+    public void Clear() => Clear(startPosition);
+
+    /// <summary>Takes the birdie out of play and holds it at a position.</summary>
+    public void Clear(Vector3 position)
+    {
+        LastShot = null;
+        LastHitter = null;
+        LaunchSpeed = 0f;
+        sim = new BirdieSimState { Position = position };
+        previousSimPosition = position;
+        accumulator = 0f;
+        State = FlightState.Idle;
+        transform.position = position;
+        Cleared?.Invoke();
     }
 
     public void SetFlightProfile(BirdieFlightProfile profile)

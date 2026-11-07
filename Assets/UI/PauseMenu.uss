@@ -20,8 +20,9 @@
     background-color: rgb(30, 32, 38);
 }
 
-/* Options starts hidden; PauseMenuView toggles panels at runtime. */
-#options-panel {
+/* These start hidden; PauseMenuView toggles panels at runtime. */
+#options-panel,
+#game-over-panel {
     display: none;
 }
 

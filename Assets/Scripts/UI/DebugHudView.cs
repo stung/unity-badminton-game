@@ -33,6 +33,13 @@ public class DebugHudView : MonoBehaviour
         return lastShotLabel != null && feedLabel != null;
     }
 
+    /// <summary>Shows or hides the readout. Hidden rather than disabled, so it keeps its text.</summary>
+    public void SetVisible(bool visible)
+    {
+        VisualElement root = GetComponent<UIDocument>().rootVisualElement;
+        if (root != null) root.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+    }
+
     private void OnDestroy()
     {
         if (hitter != null) hitter.ShotPlayed -= OnShotPlayed;

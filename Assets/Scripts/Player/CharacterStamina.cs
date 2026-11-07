@@ -54,6 +54,8 @@ public class CharacterStamina : MonoBehaviour
         stateMachine.Jumped -= OnJumped;
     }
 
+    public void Refill() => Current = maxStamina;
+
     private void OnDashed(Vector3 direction) => Change(-dashCost);
     private void OnJumped() => Change(-jumpCost);
 
