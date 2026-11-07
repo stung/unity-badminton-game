@@ -1,0 +1,24 @@
+/* Stamina bar, top centre. Sizes assume the 1920x1080 reference resolution. */
+.stamina-root {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 24px;
+    align-items: center;
+}
+
+.stamina-track {
+    width: 600px;
+    height: 28px;
+    padding: 4px;
+    border-radius: 8px;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Width and colour are set from StaminaBarView. */
+.stamina-fill {
+    width: 100%;
+    height: 100%;
+    border-radius: 4px;
+    background-color: rgb(51, 204, 64);
+}

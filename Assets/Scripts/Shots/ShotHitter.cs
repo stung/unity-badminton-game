@@ -22,6 +22,7 @@ public class ShotHitter : MonoBehaviour
     [SerializeField] private float maxReachHeight = 3.1f;
 
     private CourtSide courtSide;
+    private CharacterMotor motor;
 
     /// <summary>Raised on every successful hit, for feedback/debug UI.</summary>
     public event Action<ShotData, ShotContext> ShotPlayed;
@@ -29,7 +30,12 @@ public class ShotHitter : MonoBehaviour
     private void Awake()
     {
         courtSide = GetComponent<CourtSide>();
+        motor = GetComponent<CharacterMotor>();
     }
+
+    // The reach heights are measured from the character's feet, so a jump lifts the whole reach area:
+    // the birdie can be met earlier, but low shots go out of reach while in the air.
+    private float Lift => motor != null ? motor.HeightAboveGround : 0f;
 
     /// <param name="aimX">-1..1 sideways aim at contact, relative to this character facing the net.</param>
     /// <returns>True if the birdie was hit.</returns>
@@ -62,7 +68,7 @@ public class ShotHitter : MonoBehaviour
         Vector3 offset = point - hitPoint.position;
         offset.y = 0f;
         return offset.sqrMagnitude <= reachRadius * reachRadius
-               && point.y >= minReachHeight && point.y <= maxReachHeight;
+               && point.y >= minReachHeight + Lift && point.y <= maxReachHeight + Lift;
     }
 
     private ShotContext BuildContext(Vector3 contact)
@@ -83,8 +89,8 @@ public class ShotHitter : MonoBehaviour
         if (hitPoint == null) return;
         Gizmos.color = new Color(1f, 0.8f, 0f, 0.5f);
         Vector3 c = hitPoint.position;
-        Vector3 bottom = new Vector3(c.x, minReachHeight, c.z);
-        Vector3 top = new Vector3(c.x, maxReachHeight, c.z);
+        Vector3 bottom = new Vector3(c.x, minReachHeight + Lift, c.z);
+        Vector3 top = new Vector3(c.x, maxReachHeight + Lift, c.z);
         Gizmos.DrawWireSphere(bottom, reachRadius);
         Gizmos.DrawWireSphere(top, reachRadius);
         Gizmos.DrawLine(bottom + Vector3.left * reachRadius, top + Vector3.left * reachRadius);

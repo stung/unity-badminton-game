@@ -17,12 +17,39 @@ Running log of updates, newest first. Each entry: what changed, why, and anythin
 - **Fine-tune ShotTable categories:** e.g. should a low Square in the mid/back court be a Drop instead of a Net Drop? (Left as Net Drop for now, deliberately.)
 - **More aim targets for aggressive shots:** left/right **mid-court** spots for smashes and drives (body or half-court smashes), on top of straight and corners.
 - **Contact height shapes the trajectory:** the same button at different contact heights should give different flight paths. For example, a lift from near the floor is a high defensive arc, but at waist height it's flatter and faster. Likely more `ShotTable` rows with narrower height bands and their own shot assets (e.g. Low Lift / High Lift, Flat Drop / Floated Drop). It could also be a height-dependent angle on a single shot.
-- **Lunging:** a quick boost in the movement direction (greybox: the capsule dashes) to reach wide shots. Likely its own player state with recovery. Ties into stamina later.
-- **Jumping:** for jump smashes / intercepting high shots. Raises contact height, which the ShotTable already uses.
 - **Arm + racket-driven hitbox:** today the racket is purely visual. Contact uses an invisible reach cylinder around `HitPoint`, so a swing at empty air still connects if the birdie is anywhere in range (accepted for the prototype). Later: add an arm (shoulder → elbow → hand) holding the racket, and make contact depend on the **racket head's actual path** during the active window (a swept sphere between frames so fast swings can't skip past the birdie). Reach then comes from body + arm + racket, which lunges extend naturally. Fighting-game-style "active frames" fit the reflex feel, but this raises timing difficulty and the bot must use the same reach model.
 - **Per-shot swing animations:** every shot currently uses the same overhead swing. Add underarm (lifts, net drops, blocks), flat (drives) and steeper (smashes) swings. Catch: the shot is only decided at contact, so the swing must start before the shot is known. Options: pick the swing at press time from the birdie's predicted contact height, or blend into the right swing at contact.
 - **Input buffering:** accept a shot press slightly before the character can act (e.g. during recovery). Important for the fast, reflex-driven feel.
 - Stamina, diving, scoring, serve, dog art (from `CLAUDE.md`'s later list).
+
+---
+
+## 2026-11-07 — Dash, jump and stamina bar
+
+**Controls:** R2 / Left Shift = dash, L2 / Space = jump.
+
+**Dash**
+- 1.5 m in 0.12 s, toward the stick, or the way the character faces if the stick is centred. Only from idle or moving.
+- Spends a fixed distance rather than a fixed time, so it's the same at any frame rate. Exits at running speed, so with no stick it slides about 0.3 m further as it slows.
+- New `Dashing` state in `CharacterStateMachine`. Facing snaps to the dash direction and locks.
+
+**Jump**
+- 0.8 m high, 0.6 s in the air. Height comes from a parabola on elapsed time, so it's exact at any frame rate. Only from idle or moving.
+- No air control: horizontal velocity is fixed at takeoff, and move input resumes on landing. No landing lag for now.
+- Airborne lives in `CharacterMotor`, not the state machine, because it has to overlap with swinging. Swings are allowed in the air, and jump + shot on one frame does both. Facing locks in the air so the stick is free to aim.
+- `ShotHitter` lifts its reach heights with the jump: at the peak the dog reaches 0.85–3.6 m, so it can meet the birdie earlier but can't reach low shots.
+- Dash + jump on one frame is a dash for now (dive TODO).
+
+**Stamina**
+- `Player/CharacterStamina`: 100 max, dash and jump cost 15, still +25/s, walking +5/s, running -3/s. Running is 70%+ of top speed, still is under 5%. No change during a dash or jump. Doesn't affect gameplay yet; at 0 you can still dash and jump.
+- `UI/StaminaBarView` + `Assets/UI/StaminaBar.uxml/.uss`: top centre, fades green to yellow at half to red at empty. In `DogCourt.unity` only.
+- It uses actual speed, so pushing into the court limit counts as standing still and restores stamina quickly.
+
+**Other:** intent gained `DashRequested` and `JumpRequested` for the future bot. The human in `Court.unity` shares this code, so it can dash and jump too, without stamina. The debug readout moved down to sit below the bar. `DogCourt.unity` also carries a camera change made in the Editor: `Base Position` Y from 7 to 4.
+
+**Verified:** compiles, no console errors or warnings. With simulated keys in Play mode: dash direction, cost and neutral-stick dash; jump height, air time and reach lift; +5 m/s kept through a jump with the stick pushed the opposite way; facing lock in the air; still and running stamina rates; bar width and colour at 100/50/25/0.
+
+**Not verified:** R2 and L2 on the DualSense (only keyboard was simulated), a real swing during a jump, and how any of it feels. The walking rate wasn't measured on its own.
 
 ---
 

@@ -4,10 +4,11 @@ using UnityEngine;
 /// Snaps a character to face the way its move intent points, and keeps the last facing when the
 /// stick is released. Facing moves the reach area (HitPoint is a child), but never changes where
 /// shots go, because shots aim relative to the net.
-/// Locked during the swing because the stick doubles as shot aim: this lets you steer the shot
-/// without the character turning its reach away from the birdie.
+/// Locked during the swing and in the air because the stick doubles as shot aim: this lets you
+/// steer the shot without the character turning its reach away from the birdie.
 /// </summary>
 [RequireComponent(typeof(CharacterStateMachine))]
+[RequireComponent(typeof(CharacterMotor))]
 [RequireComponent(typeof(CourtSide))]
 public class CharacterFacing : MonoBehaviour
 {
@@ -17,12 +18,24 @@ public class CharacterFacing : MonoBehaviour
     [SerializeField] private bool lockDuringRecovery = true;
 
     private CharacterStateMachine stateMachine;
+    private CharacterMotor motor;
     private CourtSide courtSide;
 
     private void Awake()
     {
         stateMachine = GetComponent<CharacterStateMachine>();
+        motor = GetComponent<CharacterMotor>();
         courtSide = GetComponent<CourtSide>();
+    }
+
+    private void OnEnable() => stateMachine.Dashed += FaceDash;
+    private void OnDisable() => stateMachine.Dashed -= FaceDash;
+
+    // A dash locks facing as soon as it starts, so point along it first. Otherwise pressing dash
+    // and pushing the stick on the same frame would slide the character sideways.
+    private void FaceDash(Vector3 direction)
+    {
+        transform.rotation = Quaternion.LookRotation(direction, Vector3.up);
     }
 
     // LateUpdate so the state machine has already handled this frame's input. A swing started this
@@ -40,11 +53,16 @@ public class CharacterFacing : MonoBehaviour
 
     private bool IsLocked()
     {
+        if (motor.IsAirborne) return true;
         switch (stateMachine.CurrentState)
         {
-            case CharacterStateMachine.State.Swinging: return true;
-            case CharacterStateMachine.State.Recovering: return lockDuringRecovery;
-            default: return false;
+            case CharacterStateMachine.State.Swinging:
+            case CharacterStateMachine.State.Dashing:
+                return true;
+            case CharacterStateMachine.State.Recovering:
+                return lockDuringRecovery;
+            default:
+                return false;
         }
     }
 }

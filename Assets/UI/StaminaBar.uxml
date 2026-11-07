@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="StaminaBar.uss" />
+    <!-- picking-mode Ignore everywhere so the bar never blocks clicks. -->
+    <ui:VisualElement name="stamina-root" class="stamina-root" picking-mode="Ignore">
+        <ui:VisualElement name="stamina-track" class="stamina-track" picking-mode="Ignore">
+            <ui:VisualElement name="stamina-fill" class="stamina-fill" picking-mode="Ignore" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

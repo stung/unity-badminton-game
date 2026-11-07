@@ -1,8 +1,9 @@
-/* Debug readout, top-left. Sizes assume the 1920x1080 reference resolution. */
+/* Debug readout, top-left, below the stamina bar so they can't overlap in a narrow window.
+   Sizes assume the 1920x1080 reference resolution. */
 .hud {
     position: absolute;
     left: 24px;
-    top: 24px;
+    top: 64px;
     padding: 12px 18px;
     border-radius: 8px;
     background-color: rgba(0, 0, 0, 0.5);

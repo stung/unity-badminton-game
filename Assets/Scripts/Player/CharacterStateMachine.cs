@@ -2,13 +2,15 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// Executes intents for one character: Idle / Moving / Swinging / Recovering.
+/// Executes intents for one character: Idle / Moving / Swinging / Recovering / Dashing.
 /// Works the same whether the IntentSource is a human or a bot.
+/// Being airborne is tracked by CharacterMotor rather than as a state here, because it has to
+/// overlap with swinging: a jump's whole purpose is hitting the birdie on the way up.
 /// </summary>
 [RequireComponent(typeof(CharacterMotor))]
 public class CharacterStateMachine : MonoBehaviour
 {
-    public enum State { Idle, Moving, Swinging, Recovering }
+    public enum State { Idle, Moving, Swinging, Recovering, Dashing }
 
     [SerializeField] private IntentSource intentSource;
     [SerializeField] private ShotHitter hitter;
@@ -29,6 +31,10 @@ public class CharacterStateMachine : MonoBehaviour
     public event Action<State> StateChanged;
     /// <summary>Fired once per swing when the active window closes. Arg: whether it connected.</summary>
     public event Action<bool> SwingResolved;
+    /// <summary>Fired when a dash starts. Arg: its world direction.</summary>
+    public event Action<Vector3> Dashed;
+    /// <summary>Fired when a jump starts.</summary>
+    public event Action Jumped;
 
     private void Awake()
     {
@@ -48,14 +54,25 @@ public class CharacterStateMachine : MonoBehaviour
         {
             case State.Idle:
             case State.Moving:
-                if (intent.ShotRequest != ShotCategory.None)
+                // Dash takes priority over jump for now. Pressing both will become a dive (see NOTES.md).
+                if (intent.DashRequested && !motor.IsAirborne)
                 {
-                    StartSwing(intent.ShotRequest);
-                    speedMultiplier = swingTiming.SwingMoveMultiplier;
+                    StartDash(intent.Move);
                 }
                 else
                 {
-                    SetState(intent.Move.sqrMagnitude > 0.0001f ? State.Moving : State.Idle);
+                    if (intent.JumpRequested && motor.TryJump()) Jumped?.Invoke();
+
+                    // Checked after the jump, not instead of it, so jump + shot on one frame does both.
+                    if (intent.ShotRequest != ShotCategory.None)
+                    {
+                        StartSwing(intent.ShotRequest);
+                        speedMultiplier = swingTiming.SwingMoveMultiplier;
+                    }
+                    else
+                    {
+                        SetState(intent.Move.sqrMagnitude > 0.0001f ? State.Moving : State.Idle);
+                    }
                 }
                 break;
 
@@ -82,7 +99,15 @@ public class CharacterStateMachine : MonoBehaviour
                 break;
         }
 
-        motor.Tick(intent.Move, speedMultiplier, dt);
+        if (state == State.Dashing)
+        {
+            // Runs on the frame the dash starts too, so it responds with no delay.
+            if (motor.TickDash(dt)) SetState(State.Idle);
+        }
+        else
+        {
+            motor.Tick(intent.Move, speedMultiplier, dt);
+        }
     }
 
     private void StartSwing(ShotCategory category)
@@ -90,6 +115,13 @@ public class CharacterStateMachine : MonoBehaviour
         activeCategory = category;
         hitThisSwing = false;
         SetState(State.Swinging);
+    }
+
+    private void StartDash(Vector2 move)
+    {
+        Vector3 direction = motor.BeginDash(move);
+        SetState(State.Dashing);
+        Dashed?.Invoke(direction);
     }
 
     private void SetState(State next)

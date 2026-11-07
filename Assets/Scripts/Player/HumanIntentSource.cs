@@ -12,11 +12,15 @@ public class HumanIntentSource : IntentSource
     [SerializeField] private string defensiveActionName = "Defensive";
     [SerializeField] private string precisionActionName = "Precision";
     [SerializeField] private string attackActionName = "Attack";
+    [SerializeField] private string dashActionName = "Dash";
+    [SerializeField] private string jumpActionName = "Jump";
 
     private InputAction moveAction;
     private InputAction defensiveAction;
     private InputAction precisionAction;
     private InputAction attackAction;
+    private InputAction dashAction;
+    private InputAction jumpAction;
 
     private void Awake()
     {
@@ -25,6 +29,8 @@ public class HumanIntentSource : IntentSource
         defensiveAction = actions.FindAction(defensiveActionName, throwIfNotFound: true);
         precisionAction = actions.FindAction(precisionActionName, throwIfNotFound: true);
         attackAction = actions.FindAction(attackActionName, throwIfNotFound: true);
+        dashAction = actions.FindAction(dashActionName, throwIfNotFound: true);
+        jumpAction = actions.FindAction(jumpActionName, throwIfNotFound: true);
     }
 
     public override CharacterIntent ReadIntent()
@@ -34,6 +40,8 @@ public class HumanIntentSource : IntentSource
             // WASD composites can produce (1,1); clamp so diagonals aren't faster than the stick.
             Move = Vector2.ClampMagnitude(moveAction.ReadValue<Vector2>(), 1f),
             ShotRequest = ReadShotRequest(),
+            DashRequested = dashAction.WasPressedThisFrame(),
+            JumpRequested = jumpAction.WasPressedThisFrame(),
         };
     }
 

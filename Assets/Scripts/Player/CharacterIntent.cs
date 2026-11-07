@@ -10,7 +10,7 @@ public struct CharacterIntent
     /// Desired movement relative to the character's own side of the court, magnitude 0..1.
     /// y = toward the net, x = to the character's right when facing the net.
     /// Side-relative (not camera-relative) so game logic never depends on a camera.
-    /// Also used as shot aim at contact (x = left/right).
+    /// Also used as shot aim at contact (x = left/right) and as dash direction.
     /// </summary>
     public Vector2 Move;
 
@@ -19,4 +19,10 @@ public struct CharacterIntent
     /// chosen at contact by ShotTable, because it depends on where the birdie is when it's hit.
     /// </summary>
     public ShotCategory ShotRequest;
+
+    /// <summary>True on the frame a dash is requested.</summary>
+    public bool DashRequested;
+
+    /// <summary>True on the frame a jump is requested.</summary>
+    public bool JumpRequested;
 }
