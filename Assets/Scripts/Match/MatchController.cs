@@ -123,7 +123,7 @@ public class MatchController : MonoBehaviour
 
             case MatchState.PointOver:
                 if (timer > 0f) break;
-                if (Mathf.Max(HumanScore, BotScore) >= winningScore)
+                if (PointRules.IsGameOver(HumanScore, BotScore, winningScore))
                 {
                     State = MatchState.GameOverText;
                     timer = gameOverTextSeconds;
@@ -149,10 +149,8 @@ public class MatchController : MonoBehaviour
 
     private void SetUpPoint()
     {
-        // Real badminton: both players stand on their own right when the server's score is even,
-        // and their own left when it's odd. That always puts them diagonally opposite each other.
         int serverScore = humanServes ? HumanScore : BotScore;
-        bool rightSide = serverScore % 2 == 0;
+        bool rightSide = PointRules.ServesFromRight(serverScore);
 
         human.IsLocked = true;
         bot.IsLocked = true;

@@ -46,6 +46,12 @@ public class CharacterStateMachine : MonoBehaviour
         motor = GetComponent<CharacterMotor>();
     }
 
+    /// <summary>
+    /// Swaps what drives this character, e.g. a scripted source in Play Mode tests. Later this
+    /// could hand a character between a human and the bot.
+    /// </summary>
+    public void SetIntentSource(IntentSource source) => intentSource = source;
+
     private void Update()
     {
         float dt = Time.deltaTime;

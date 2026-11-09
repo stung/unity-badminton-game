@@ -3,12 +3,13 @@
 Running log of updates, newest first. Each entry: what changed, why, and anything left open.
 
 ## Next up
-1. **Aim left or right without moving the hitbox (urgent):** the left stick sets both shot aim and facing, and the reach area sits in front of the dog. Holding a direction to aim before pressing a shot turns the dog, which moves its hitbox away from the birdie. Facing only locks once the swing starts. *Being tested on branch `snap-to-birdie` (see 2026-11-09).*
-2. **Running speed buildup (high priority):** characters reach top speed instantly from a standstill. Add a short acceleration so mobility is a little weaker, and repositioning has a real cost. The bot uses the same motor, so it gets this too.
-3. **Tune drop shots (high priority):** drops arc far too high compared with real badminton, where a drop falls just over the net on a flatter, sharper path.
-4. **Shot system stage 3, tuning pass (Realistic only):** depths, speeds, reach and timing windows; hitstop and shake amounts; maybe a more forgiving window for smash returns. Consider a higher minimum contact height for smashes: from 2.0 m contact, a mid/front "smash" often has to take pace off (fallback) and comes out slow.
+1. **Running speed buildup (high priority):** characters reach top speed instantly from a standstill. Add a short acceleration so mobility is a little weaker, and repositioning has a real cost. The bot uses the same motor, so it gets this too.
+2. **Tune drop shots (high priority):** drops arc far too high compared with real badminton, where a drop falls just over the net on a flatter, sharper path.
+3. **Shot system stage 3, tuning pass (Realistic only):** depths, speeds, reach and timing windows; hitstop and shake amounts; maybe a more forgiving window for smash returns. Consider a higher minimum contact height for smashes: from 2.0 m contact, a mid/front "smash" often has to take pace off (fallback) and comes out slow.
 
 ## TODO / ideas (not scheduled)
+- **Split the game assembly per folder (refactor):** all game code is one assembly (`DoggyBadminton`) for now. Splitting by folder (Birdie, Shots, Player, ...) would enforce which systems may use which, but assemblies can't reference each other in a circle, and today the folders use each other both ways. Untangle those dependencies first.
+- **Run tests on GitHub (CI):** tests currently run locally (Test Runner, or Claude via Unity MCP). GameCI could run them on every push; it needs a Unity licence stored as GitHub secrets, and it's third-party, so it needs a go-ahead.
 - **Different dogs:** selectable dogs with different characteristics, such as speed, size and maybe power.
 - **Supers (idea to consider):** special moves.
 - **Visible hitbox (idea to consider):** show the reach area in-game, not just as an Editor gizmo.
@@ -43,7 +44,15 @@ Running log of updates, newest first. Each entry: what changed, why, and anythin
 
 ---
 
-## 2026-11-09 — Swing snap: face the birdie while swinging (testing on `snap-to-birdie`)
+## 2026-11-09 — Automated tests (Unity Test Framework)
+- **How to run:** Window → General → Test Runner → Run All (Edit Mode and Play Mode tabs). Claude also runs them after script changes (see `CLAUDE.md`).
+- Game scripts now compile into their own assembly, `Assets/Scripts/DoggyBadminton.asmdef`, so test assemblies can reference them. The Test Framework package (1.8.0, already installed indirectly) is now listed in the manifest by name.
+- **Edit Mode tests** (`Assets/Tests/EditMode`, ~0.5 s): landing predictor agrees exactly with the flight model; the sim is deterministic; net faults drop on the hitter's side; `LaunchSolver` lands on target and clears the net; `DogShotTable` picks the intended shot for each button and situation, and splits zones by depth; point rules, serve side and game-over at 5. They load the real tuning assets, so retuning one on purpose may mean updating a test's expectation.
+- **Play Mode tests** (`Assets/Tests/PlayMode`, ~2 s): load `DogCourt.unity` and drive the player with `ScriptedIntentSource` (a fake controller). Swing snap hits a birdie behind the dog, misses with the snap off, and still misses when the birdie is out of reach.
+- Small code changes for testability: `PointRules.ServesFromRight` / `IsGameOver` (moved out of `MatchController`, same behaviour), `CharacterStateMachine.SetIntentSource`, `CharacterFacing.SnapToBirdieOnSwing`.
+- Deleted the leftover template files (`Assets/TutorialInfo`, `Assets/Readme.asset`).
+
+## 2026-11-09 — Swing snap: face the birdie while swinging
 - Fixes the whiff where flicking the stick to aim just before a swing turned the dog, moving its reach away from the birdie.
 - While **Swinging**, `CharacterFacing` turns the dog to face the birdie on any frame where that would put the birdie in reach (`ShotHitter.TryGetSnapDirection`). The stick then only aims. It runs every swinging frame, not just on the press, so an early press still tracks the birdie in. It also works in the air.
 - Stops once the birdie is hit, so the follow-through keeps its facing. The bot gets it too, since it uses the same components.

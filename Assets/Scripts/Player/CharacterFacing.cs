@@ -38,6 +38,13 @@ public class CharacterFacing : MonoBehaviour
         hitter = GetComponent<ShotHitter>();
     }
 
+    /// <summary>Same as the Inspector toggle; lets tests (or a future option) switch the snap.</summary>
+    public bool SnapToBirdieOnSwing
+    {
+        get => snapToBirdieOnSwing;
+        set => snapToBirdieOnSwing = value;
+    }
+
     private void OnEnable() => stateMachine.Dashed += FaceDash;
     private void OnDisable() => stateMachine.Dashed -= FaceDash;
 

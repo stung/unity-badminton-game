@@ -14,4 +14,13 @@ public static class PointRules
         bool inBounds = Mathf.Abs(landing.x) <= court.HalfWidth && Mathf.Abs(landing.z) <= court.HalfLength;
         return inBounds ? landing.z < 0f : hitByNearSide;
     }
+
+    /// <summary>
+    /// Real badminton: both players stand on their own right when the server's score is even,
+    /// and their own left when it's odd. That always puts them diagonally opposite each other.
+    /// </summary>
+    public static bool ServesFromRight(int serverScore) => serverScore % 2 == 0;
+
+    /// <summary>First to the winning score takes the game (no win-by-two rule yet).</summary>
+    public static bool IsGameOver(int scoreA, int scoreB, int winningScore) => Mathf.Max(scoreA, scoreB) >= winningScore;
 }

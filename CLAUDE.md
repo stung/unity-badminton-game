@@ -21,6 +21,7 @@ Later (do NOT build unless asked): other shots (drop, smash, net, drive), diving
 ## Conventions
 - Scripts go in Assets/Scripts/ with subfolders: Player, Bot, Birdie, Shots, Match, Camera, UI
 - ScriptableObject assets go in Assets/Data/
+- Tests go in Assets/Tests/EditMode (pure logic, no Play needed) and Assets/Tests/PlayMode (loads DogCourt.unity and runs real frames). Game code compiles into the DoggyBadminton assembly (Assets/Scripts/DoggyBadminton.asmdef).
 - Use PascalCase for classes and methods, camelCase for private fields, [SerializeField] instead of public fields
 - Expose tuning values (speeds, drag, power) in the Inspector so I can adjust them without code changes
 - Comment the "why" for anything non-obvious, especially physics or timing code
@@ -31,7 +32,9 @@ Later (do NOT build unless asked): other shots (drop, smash, net, drive), diving
 
 ## Workflow
 - Before big changes, propose a plan and wait for my approval
-- After changing scripts, check the Unity console for compile errors and fix them
+- After changing scripts, check the Unity console for compile errors and fix them, then run the Edit Mode tests
+- Before suggesting a commit, also run the Play Mode tests. Report failures rather than committing over them
+- When adding a feature or fixing a bug, add or update tests for it where practical
 - Do not edit scenes or prefabs unless I ask, or tell me first, since I may have them open in the editor
 - Do not add third-party packages or assets without asking. Prefer free CC0 assets (e.g. Kenney.nl) and never generate AI assets.
 - Do not commit or push until I confirm. Suggest a commit (with a proposed message) and wait for my go-ahead; approval for one commit/push does not carry over to the next.
