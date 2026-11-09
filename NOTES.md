@@ -3,10 +3,13 @@
 Running log of updates, newest first. Each entry: what changed, why, and anything left open.
 
 ## Next up
-1. **Aim left or right without moving the hitbox (urgent):** the left stick sets both shot aim and facing, and the reach area sits in front of the dog. Holding a direction to aim before pressing a shot turns the dog, which moves its hitbox away from the birdie. Facing only locks once the swing starts.
-2. **Shot system stage 3, tuning pass (Realistic only):** depths, speeds, reach and timing windows; hitstop and shake amounts; maybe a more forgiving window for smash returns. Consider a higher minimum contact height for smashes: from 2.0 m contact, a mid/front "smash" often has to take pace off (fallback) and comes out slow.
+1. **Aim left or right without moving the hitbox (urgent):** the left stick sets both shot aim and facing, and the reach area sits in front of the dog. Holding a direction to aim before pressing a shot turns the dog, which moves its hitbox away from the birdie. Facing only locks once the swing starts. *Being tested on branch `snap-to-birdie` (see 2026-11-09).*
+2. **Running speed buildup (high priority):** characters reach top speed instantly from a standstill. Add a short acceleration so mobility is a little weaker, and repositioning has a real cost. The bot uses the same motor, so it gets this too.
+3. **Tune drop shots (high priority):** drops arc far too high compared with real badminton, where a drop falls just over the net on a flatter, sharper path.
+4. **Shot system stage 3, tuning pass (Realistic only):** depths, speeds, reach and timing windows; hitstop and shake amounts; maybe a more forgiving window for smash returns. Consider a higher minimum contact height for smashes: from 2.0 m contact, a mid/front "smash" often has to take pace off (fallback) and comes out slow.
 
 ## TODO / ideas (not scheduled)
+- **Turnaround penalty:** once the swing snap is in, make a big snap cost something (e.g. a weaker or slower shot when the dog has to whip far around), so facing and positioning still matter. Could flip into a reward for hitting across the body. The snap already knows how far it turned.
 - **Different dogs:** selectable dogs with different characteristics, such as speed, size and maybe power.
 - **Supers (idea to consider):** special moves.
 - **Visible hitbox (idea to consider):** show the reach area in-game, not just as an Editor gizmo.
@@ -31,6 +34,13 @@ Running log of updates, newest first. Each entry: what changed, why, and anythin
 - Stamina, diving, scoring, serve, dog art (from `CLAUDE.md`'s later list).
 
 ---
+
+## 2026-11-09 — Swing snap: face the birdie while swinging (testing on `snap-to-birdie`)
+- Fixes the whiff where flicking the stick to aim just before a swing turned the dog, moving its reach away from the birdie.
+- While **Swinging**, `CharacterFacing` turns the dog to face the birdie on any frame where that would put the birdie in reach (`ShotHitter.TryGetSnapDirection`). The stick then only aims. It runs every swinging frame, not just on the press, so an early press still tracks the birdie in. It also works in the air.
+- Stops once the birdie is hit, so the follow-through keeps its facing. The bot gets it too, since it uses the same components.
+- Inspector: `Snap To Birdie On Swing` (on/off, for comparing) and `Max Snap Angle` (default 180, so the dog can whip all the way round).
+- Being far out of position still misses: the birdie has to be within the reach distance from the body in some direction.
 
 ## 2026-11-08 — Bot and Game Mode, stage 2: match rules
 

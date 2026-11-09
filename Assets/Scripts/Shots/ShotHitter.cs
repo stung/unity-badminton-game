@@ -77,6 +77,33 @@ public class ShotHitter : MonoBehaviour
                && point.y >= minReachHeight + Lift && point.y <= maxReachHeight + Lift;
     }
 
+    /// <summary>
+    /// Whether the birdie is playable and would be in reach if the character turned to face it,
+    /// and if so the flat world direction to turn to. Used by the swing snap in CharacterFacing.
+    /// </summary>
+    public bool TryGetSnapDirection(out Vector3 direction)
+    {
+        direction = Vector3.zero;
+        if (birdie == null || !birdie.IsInFlight || ReferenceEquals(birdie.LastHitter, this)) return false;
+
+        Vector3 point = birdie.Position;
+        if (point.y < minReachHeight + Lift || point.y > maxReachHeight + Lift) return false;
+
+        // Facing the birdie puts the hit point on the line from the body to the birdie, so the gap
+        // between them is just the difference of their distances from the body.
+        Vector3 toBirdie = point - transform.position;
+        toBirdie.y = 0f;
+        Vector3 toHitPoint = hitPoint.position - transform.position;
+        toHitPoint.y = 0f;
+        float distance = toBirdie.magnitude;
+        if (Mathf.Abs(distance - toHitPoint.magnitude) > reachRadius) return false;
+
+        // Birdie right overhead: any facing reaches it, so keep the current one.
+        if (distance < 0.01f) return false;
+        direction = toBirdie / distance;
+        return true;
+    }
+
     private ShotContext BuildContext(Vector3 contact)
     {
         // Distance from the net on our own side: towardNet points at the net, so it's the negative projection.
