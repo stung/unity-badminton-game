@@ -28,6 +28,12 @@ Running log of updates, newest first. Each entry: what changed, why, and anythin
   - **Squash and stretch:** a quick lean back into the turn, then a spring forward (an animation principle: the body briefly deforms to sell weight and speed).
   - **Facing flick:** the dog whips around with a short overshoot, rather than snapping.
   - Scale all of these by turn sharpness so small turns show nothing. Keep them to visuals so game logic doesn't depend on them.
+- **Rally replay with slow-mo final shot (design discussion in progress):** after a point, replay the last ~5 s of the rally and slow down through the final racket contact. Proposed approach, not yet approved:
+  - **Recording:** a snapshot ring buffer (fixed-size array that overwrites its oldest entry) storing, every frame, both dogs' and the birdie's position and rotation plus visual state (swing progress for `RacketSwingView` / `LegSwingView`). Snapshots rather than re-simulating from inputs, because character movement uses variable `deltaTime` and the bot uses `Random`, so a re-sim would drift out of sync.
+  - **Playback:** interpolate between snapshots so slow-mo stays smooth. Mark the timestamp of the last hit; play at normal speed, then ease down to slow-mo around contact. Use the replay's own clock, not `Time.timeScale`, so it doesn't fight `GameTime` (pause, hitstop).
+  - **Game logic off during playback:** intent sources, motor and birdie sim disabled; the replay only drives transforms. Fits as a new match state between point and reset.
+  - **Cinematic angles:** a separate full-screen `ReplayCamera` (game logic doesn't read cameras, so this is cheap). Ideas: side-on broadcast view at net height panning with the birdie; low angle behind the hitter for the final shot; slow orbit around the contact point during slow-mo; cut from wide to close-up.
+  - Needs a scene change (replay camera) and a plan approval before building.
 - **Stamina affects gameplay:** the stamina bar is meant to change what the player can do, not just display.
 - **Stamina for smashing:** smashes should cost stamina too, so you can't smash continuously (`ShotData` already has an unused `staminaCost`). The bot has no stamina yet, so it would need it as well to play by the same rules.
 - **Stamina between points:** in a real game, replenish stamina slowly between points, so players don't start each point with a full bar.
