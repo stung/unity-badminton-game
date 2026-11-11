@@ -57,6 +57,18 @@ Running log of updates, newest first. Each entry: what changed, why, and anythin
 
 ---
 
+## 2026-11-11 — Sound effects (Kenney CC0)
+- First sounds: racket **hit**, **smash hit**, **whiff** (missed swing), birdie **landing** thud, and a cartoon **skid** (Interface `error_003`, picked by ear). Clips are from three Kenney CC0 packs (Impact Sounds, Interface Sounds, RPG Audio). The 19 clips used, plus `error_002`, `error_004` and `scratch_004` kept as spare skid options (22 total), are in `Assets/Audio/Kenney/`, with each pack's License.txt. Credit isn't required, but it's good to credit Kenney in the game.
+- **Sounds are data:** a `SoundSet` asset (in `Assets/Data/Audio/`) holds clip variations, volume and a random pitch range, so repeats don't sound identical. `ShotData` has an optional **Sound** slot. Empty uses the default hit; the three smashes use `HitSmash`. Swapping a sound means changing an asset, not code.
+- New `Assets/Scripts/Audio/` folder:
+  - `SfxPlayer`: a pool of 2D AudioSources on the scene's new `Audio` object.
+  - `ShotAudio`: hit and landing sounds. Harder hits are louder and up to 15% higher, by launch speed (a full smash ≈ 90 m/s).
+  - `CharacterAudio`: on each dog, plays whiff and skid. The skid is louder and a bit lower for harder skids.
+  - `SoundRules`: the pure loudness, pitch and pan math.
+- Sounds are 2D with a gentle stereo pan by court position, since split-screen means one listener for two cameras. AudioSources ignore time scale, so sounds play normally through hitstop and slow-mo.
+- Apart from the skid, clip choices are first guesses picked by name and length, not by ear. Listen and swap clips in the `SoundSet` assets as needed. The packs have more variety: Impact has wood, plate, metal and punch impacts and footsteps; Interface has scratch, click and drop; RPG has cloth and knife swishes.
+- Tests: Edit Mode `SoundRulesTests` (intensity, volume, pitch, pan, clip picking); Play Mode `AudioFeedbackTests` (a hit, a whiff and a skid each play the right sound).
+
 ## 2026-11-11 — Skid visual feedback
 - A skid now shows, scaled by its severity (wrong-way speed as a fraction of top speed), so small turns show nothing:
   - **Body lean + squash** (`SkidLeanView`): the body tips back against the slide and squashes slightly, then springs upright with a small overshoot (the "spring forward") as the skid ends. A damped spring, substepped so it behaves the same at any frame rate. Inspector: `maxLeanAngle` (25°), `maxSquash` (0.15), `stiffness`, `damping` (lower = more overshoot).

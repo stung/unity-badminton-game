@@ -24,6 +24,7 @@ MonoBehaviour:
   maxSolveAngleDeg: 15
   hitstopSeconds: 0.1
   shakeIntensity: 0.64
+  hitSound: {fileID: 11400000, guid: 4a76c8e9b9d3b40c390cfc59388ea723, type: 2}
   sideAimThreshold: 0.3
   sidelineMargin: 0.3
   baselineMargin: 0.3

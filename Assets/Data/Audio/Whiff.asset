@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a427f49851e0240258c89b113759db7d, type: 3}
+  m_Name: Whiff
+  m_EditorClassIdentifier: DoggyBadminton::SoundSet
+  clips:
+  - {fileID: 8300000, guid: 1f800d686b8ac43bd8eed7d1938747b9, type: 3}
+  - {fileID: 8300000, guid: d23d94b027d7442af8d527d1ca6e2c64, type: 3}
+  - {fileID: 8300000, guid: 0fbcf2543115c47c396e303b57c5af81, type: 3}
+  volume: 0.6
+  pitchMin: 1
+  pitchMax: 1.2

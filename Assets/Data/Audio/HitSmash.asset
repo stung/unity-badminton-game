@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a427f49851e0240258c89b113759db7d, type: 3}
+  m_Name: HitSmash
+  m_EditorClassIdentifier: DoggyBadminton::SoundSet
+  clips:
+  - {fileID: 8300000, guid: 3b3999585c15c46e0b34bfc60285a7d9, type: 3}
+  - {fileID: 8300000, guid: cd47c69cb6ba14787b9ad666fbf21f91, type: 3}
+  - {fileID: 8300000, guid: 259fe502aa98a4171bee2ef531a77666, type: 3}
+  - {fileID: 8300000, guid: 2294b4f60222b4fbfab146608df2aa3c, type: 3}
+  - {fileID: 8300000, guid: 07780b38ab8b14214b77a200bdbeb294, type: 3}
+  volume: 1
+  pitchMin: 0.95
+  pitchMax: 1.05

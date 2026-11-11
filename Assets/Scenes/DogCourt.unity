@@ -10143,6 +10143,7 @@ GameObject:
   - component: {fileID: 1511963674}
   - component: {fileID: 1511963676}
   - component: {fileID: 1511963675}
+  - component: {fileID: 1511963677}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -10402,6 +10403,26 @@ MonoBehaviour:
   maxSquash: 0.15
   stiffness: 250
   damping: 18
+--- !u!114 &1511963677
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1511963663}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c81351fa6fe474137a78654f0a109ad7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DoggyBadminton::CharacterAudio
+  stateMachine: {fileID: 1511963665}
+  motor: {fileID: 1511963668}
+  sfx: {fileID: 2133567585}
+  whiff: {fileID: 11400000, guid: d12fb7dd8f7e94072b946132140db8ae, type: 2}
+  skid: {fileID: 11400000, guid: 8617988d062c84c38a46769fd117274b, type: 2}
+  quietSkid: 0.4
+  skidPitchSpread: 0.2
+  panAmount: 0.4
 --- !u!1 &1535917282
 GameObject:
   m_ObjectHideFlags: 0
@@ -10995,6 +11016,7 @@ GameObject:
   - component: {fileID: 1653201774}
   - component: {fileID: 1653201783}
   - component: {fileID: 1653201782}
+  - component: {fileID: 1653201784}
   m_Layer: 0
   m_Name: Bot
   m_TagString: Untagged
@@ -11195,6 +11217,26 @@ MonoBehaviour:
   maxSquash: 0.15
   stiffness: 250
   damping: 18
+--- !u!114 &1653201784
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1653201773}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c81351fa6fe474137a78654f0a109ad7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DoggyBadminton::CharacterAudio
+  stateMachine: {fileID: 1653201777}
+  motor: {fileID: 1653201779}
+  sfx: {fileID: 2133567585}
+  whiff: {fileID: 11400000, guid: d12fb7dd8f7e94072b946132140db8ae, type: 2}
+  skid: {fileID: 11400000, guid: 8617988d062c84c38a46769fd117274b, type: 2}
+  quietSkid: 0.4
+  skidPitchSpread: 0.2
+  panAmount: 0.4
 --- !u!1 &1661079018
 GameObject:
   m_ObjectHideFlags: 0
@@ -13441,6 +13483,73 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2133567583
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2133567586}
+  - component: {fileID: 2133567585}
+  - component: {fileID: 2133567584}
+  m_Layer: 0
+  m_Name: Audio
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2133567584
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2133567583}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3195d1d7e85544ad99c021c2a7ddd66e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DoggyBadminton::ShotAudio
+  birdie: {fileID: 862587068}
+  sfx: {fileID: 2133567585}
+  defaultHit: {fileID: 11400000, guid: 009cc66adc4414ed2b8f1cce014fb5be, type: 2}
+  land: {fileID: 11400000, guid: e3dce4d1a39454251983726a46a98f73, type: 2}
+  fullIntensitySpeed: 90
+  quietFraction: 0.55
+  pitchBoost: 0.15
+  panAmount: 0.4
+--- !u!114 &2133567585
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2133567583}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99579625234b64069a4b0c26557550bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DoggyBadminton::SfxPlayer
+  voices: 8
+  masterVolume: 1
+--- !u!4 &2133567586
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2133567583}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1987528540131054772
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -13520,3 +13629,4 @@ SceneRoots:
   - {fileID: 1653201781}
   - {fileID: 1535917285}
   - {fileID: 355542741}
+  - {fileID: 2133567586}

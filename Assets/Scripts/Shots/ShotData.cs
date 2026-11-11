@@ -51,6 +51,10 @@ public class ShotData : ScriptableObject
     [Tooltip("Camera shake strength on contact, 0..1.")]
     [Range(0f, 1f)] [SerializeField] private float shakeIntensity = 0f;
 
+    [Header("Sound")]
+    [Tooltip("Racket sound for this shot. Empty uses ShotAudio's default hit.")]
+    [SerializeField] private SoundSet hitSound;
+
     [Header("Aim")]
     [Tooltip("Sideways stick past this (0..1) at contact aims for a corner; below it the shot goes straight. " +
              "Keeps slight stick drift while running from turning a straight shot into a corner shot.")]
@@ -69,6 +73,7 @@ public class ShotData : ScriptableObject
     public float StaminaCost => staminaCost;
     public float HitstopSeconds => hitstopSeconds;
     public float ShakeIntensity => shakeIntensity;
+    public SoundSet HitSound => hitSound;
 
     /// <summary>
     /// 0..1 multiplier for impact feedback, from how hard the shot actually went. A FixedSpeed shot that
