@@ -20,12 +20,6 @@ Running log of updates, newest first. Each entry: what changed, why, and anythin
 - **Dive:** when dash and jump are pressed together, do a dive.
 - **Dash aim assist (snap to the birdie):** when dashing, bend the dash direction toward the birdie's predicted landing spot, within reason (aim assist: the game nudges your input toward the target). Cap it with a max angle and a max distance so it helps without feeling like autopilot or teleporting. The dash is a fixed 1.5 m, so the assist mostly changes direction, not length. The bot would have to use the same rule.
 - **Make the skid more noticeable (tune):** noted 2026-11-11 from playtesting. The skid works but is too subtle. Levers on `CharacterMotor` → Turnaround (skid): lower `skidDeceleration` (longer skids), lower `freeTurnAngle` (more turns count), and maybe make braking weaker at high speed so the cost grows faster than linearly. Judge together with the skid visuals.
-- **Turnaround visual feedback (needs a design pass):** the player needs to see that the penalty happened, not just feel the lag. Ideas to try:
-  - **Skid:** the dog slides with its legs braced, using `LegSwingView` to plant the legs instead of swinging them.
-  - **Dust puff:** a small particle burst at the feet, a common way to sell a hard stop.
-  - **Squash and stretch:** a quick lean back into the turn, then a spring forward (an animation principle: the body briefly deforms to sell weight and speed).
-  - **Facing flick:** the dog whips around with a short overshoot, rather than snapping.
-  - Scale all of these by turn sharpness so small turns show nothing. Keep them to visuals so game logic doesn't depend on them.
 - **Split-step timing bonus:** if the player split steps (the small hop real players do as the opponent hits, so they land ready to push off in any direction) right as the opponent hits the birdie, their next move skips the acceleration penalty from the running speed buildup and starts at full speed. If they then move in the wrong direction, the turnaround/backpedal penalty still applies: a well-timed split step removes the slow start, not the cost of guessing wrong. Open questions: how wide the timing window around contact is (±N frames), and whether "wrong direction" is judged against the birdie's predicted landing spot or its current velocity. Needs the speed buildup and turnaround penalty first, and the bot follows the same rule since the motor is shared.
 - **Rally replay with slow-mo final shot (design discussion in progress):** after a point, replay the last ~5 s of the rally and slow down through the final racket contact. Proposed approach, not yet approved:
   - **Recording:** a snapshot ring buffer (fixed-size array that overwrites its oldest entry) storing, every frame, both dogs' and the birdie's position and rotation plus visual state (swing progress for `RacketSwingView` / `LegSwingView`). Snapshots rather than re-simulating from inputs, because character movement uses variable `deltaTime` and the bot uses `Random`, so a re-sim would drift out of sync.
@@ -62,6 +56,15 @@ Running log of updates, newest first. Each entry: what changed, why, and anythin
 - Stamina, diving, scoring, serve, dog art (from `CLAUDE.md`'s later list).
 
 ---
+
+## 2026-11-11 — Skid visual feedback
+- A skid now shows, scaled by its severity (wrong-way speed as a fraction of top speed), so small turns show nothing:
+  - **Body lean + squash** (`SkidLeanView`): the body tips back against the slide and squashes slightly, then springs upright with a small overshoot (the "spring forward") as the skid ends. A damped spring, substepped so it behaves the same at any frame rate. Inspector: `maxLeanAngle` (25°), `maxSquash` (0.15), `stiffness`, `damping` (lower = more overshoot).
+  - **Leg brace** (`LegSwingView`): the legs stop trotting and plant with the feet pushed out toward the slide. Inspector: `braceAngle` (40°), `braceRate`.
+  - **Dust** (`SkidDustView` + a `SkidDust` particle system): a puff at the start, sized by severity, then a light trail while sliding. The look is set on the particle system; the script sets the amounts (`puffCount`, `trailRate`). New `Assets/Materials/Dust.mat` (URP Particles/Unlit with Unity's built-in soft particle texture, no new assets).
+- **Scene change (both dogs):** body parts (Body, Face, RacketPivot, four legs) moved under a new `Visual` pivot at the feet, so the lean can tilt the dog without moving `HitPoint`, which stays on the root. Nothing in code looked these up by path.
+- Facing flick (overshooting turn) from the original idea list isn't done; the lean's spring-back covers some of that feel.
+- Tests: Play Mode `SkidFeedbackTests` (a reversal leans the body, braces the legs and kicks up dust without moving the reach area; a gentle turn shows none of it).
 
 ## 2026-11-11 — Turnaround penalty (skid)
 - Sharp turns now cost something. Velocity is split into the part along the stick and the **wrong-way** part (sideways or backwards). The wrong-way part brakes off at `skidDeceleration` (18 m/s²) before speed builds the new way, through the full burst-then-build buildup.
