@@ -20,8 +20,20 @@ public class CharacterMotor : MonoBehaviour
     [SerializeField] private float burstAcceleration = 40f;
     [Tooltip("m/s² from the burst speed up to top speed. Lower = longer to reach full speed.")]
     [SerializeField] private float buildAcceleration = 6f;
-    [Tooltip("m/s² at which sideways/backwards momentum is shed when changing direction.")]
-    [SerializeField] private float turnDeceleration = 30f;
+
+    [Header("Turnaround (skid)")]
+    // Turning sharply means braking off the momentum that's heading the wrong way before building
+    // speed the new way. A fixed braking rate makes the cost grow with speed: reversing at top speed
+    // (5 m/s) skids ~0.28 s, at 2 m/s only ~0.11 s, then the speed buildup starts over.
+    [Tooltip("Turns up to this angle (degrees) from the current heading keep their speed.")]
+    [Range(0f, 90f)] [SerializeField] private float freeTurnAngle = 45f;
+    [Tooltip("Degrees per second a free turn can swing the heading. Stops a fast stick sweep from dodging the skid.")]
+    [SerializeField] private float freeTurnRate = 540f;
+    [Tooltip("m/s² at which wrong-way momentum brakes off in a sharp turn. Lower = longer, costlier skids.")]
+    [SerializeField] private float skidDeceleration = 18f;
+    [Tooltip("Wrong-way speed (m/s) needed to count as a skid. Below this a turn is a quick shuffle: " +
+             "it still brakes, but doesn't block dashing or trigger skid visuals.")]
+    [SerializeField] private float skidMinSpeed = 1.5f;
 
     [Header("Dash")]
     [Tooltip("How far a dash travels (m).")]
@@ -57,8 +69,20 @@ public class CharacterMotor : MonoBehaviour
         BurstAcceleration = burstAcceleration,
         BuildAcceleration = buildAcceleration,
         Deceleration = deceleration,
-        TurnDeceleration = turnDeceleration,
+        FreeTurnAngle = freeTurnAngle,
+        FreeTurnRate = freeTurnRate,
+        SkidDeceleration = skidDeceleration,
     };
+    /// <summary>
+    /// True while braking off wrong-way momentum after a sharp turn. Dashing is blocked meanwhile, so a
+    /// dash can't be used as a cheap way out of the turnaround penalty.
+    /// </summary>
+    public bool IsSkidding { get; private set; }
+    /// <summary>
+    /// Fired when a skid starts. Arg: severity 0..1, the wrong-way speed as a fraction of top speed
+    /// (a full reversal at top speed is ~1). For visuals and sound; game logic doesn't need it.
+    /// </summary>
+    public event System.Action<float> Skidded;
     /// <summary>How far above the ground the character is (m). 0 unless jumping.</summary>
     public float HeightAboveGround => transform.position.y - groundHeight;
 
@@ -78,6 +102,7 @@ public class CharacterMotor : MonoBehaviour
     {
         velocity = Vector3.zero;
         IsAirborne = false;
+        IsSkidding = false;
         dashDistanceLeft = 0f;
         position.y = groundHeight;
         transform.position = position;
@@ -95,7 +120,14 @@ public class CharacterMotor : MonoBehaviour
         }
         else
         {
-            velocity = MovementRules.Step(velocity, courtSide.ToWorld(move), speedMultiplier, Tuning, dt);
+            // Measured before stepping: the skid is about the momentum you had when you turned.
+            bool wasSkidding = IsSkidding;
+            velocity = MovementRules.Step(velocity, courtSide.ToWorld(move), speedMultiplier, Tuning, dt,
+                                          wasSkidding, out float wrongWaySpeed);
+            // Enter at skidMinSpeed but stay in until the wrong-way speed is fully gone, so a skid
+            // doesn't flicker off (and re-allow dashing) partway through braking.
+            IsSkidding = wasSkidding ? wrongWaySpeed > 0.01f : wrongWaySpeed >= skidMinSpeed;
+            if (IsSkidding && !wasSkidding) Skidded?.Invoke(Mathf.Clamp01(wrongWaySpeed / Mathf.Max(maxSpeed, 0.0001f)));
         }
 
         MoveHorizontally(velocity * dt);
@@ -118,6 +150,7 @@ public class CharacterMotor : MonoBehaviour
             ? courtSide.ToWorld(move.normalized)
             : FlatForward();
         dashDistanceLeft = dashDistance;
+        IsSkidding = false;
         return dashDirection;
     }
 

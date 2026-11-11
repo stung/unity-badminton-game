@@ -19,7 +19,7 @@ Running log of updates, newest first. Each entry: what changed, why, and anythin
 - **Tune the racket hitbox:** the dog's reach area is still a tuning placeholder (0.8 m radius, 0.05–2.8 m high, centred 0.6 m ahead).
 - **Dive:** when dash and jump are pressed together, do a dive.
 - **Dash aim assist (snap to the birdie):** when dashing, bend the dash direction toward the birdie's predicted landing spot, within reason (aim assist: the game nudges your input toward the target). Cap it with a max angle and a max distance so it helps without feeling like autopilot or teleporting. The dash is a fixed 1.5 m, so the assist mostly changes direction, not length. The bot would have to use the same rule.
-- **Turnaround penalty (commitment):** a small cost for running one way and suddenly reversing, so changing direction costs a little (movement commitment: the game makes you live with your choice of direction for a moment). Likely a short drop in speed or a brief slide while the character decelerates and re-accelerates, scaled by how fast they were going and how sharp the turn is (a full 180° at top speed costs the most, a gentle turn costs nothing). Keep it small and tunable in the Inspector, and have the bot follow the same rule, since the motor is shared. **Decided 2026-11-11:** dash is disabled mid-skid, so it can't be used as a cheap escape from the penalty (even though it costs stamina). Swings stay allowed. Plan: a free-turn angle (~45°) for gentle steering, sharper turns brake the wrong-way momentum before re-accelerating, and the motor exposes `IsSkidding` / a `Skidded(severity)` event for the visuals.
+- **Make the skid more noticeable (tune):** noted 2026-11-11 from playtesting. The skid works but is too subtle. Levers on `CharacterMotor` → Turnaround (skid): lower `skidDeceleration` (longer skids), lower `freeTurnAngle` (more turns count), and maybe make braking weaker at high speed so the cost grows faster than linearly. Judge together with the skid visuals.
 - **Turnaround visual feedback (needs a design pass):** the player needs to see that the penalty happened, not just feel the lag. Ideas to try:
   - **Skid:** the dog slides with its legs braced, using `LegSwingView` to plant the legs instead of swinging them.
   - **Dust puff:** a small particle burst at the feet, a common way to sell a hard stop.
@@ -33,6 +33,7 @@ Running log of updates, newest first. Each entry: what changed, why, and anythin
   - **Game logic off during playback:** intent sources, motor and birdie sim disabled; the replay only drives transforms. Fits as a new match state between point and reset.
   - **Cinematic angles:** a separate full-screen `ReplayCamera` (game logic doesn't read cameras, so this is cheap). Ideas: side-on broadcast view at net height panning with the birdie; low angle behind the hitter for the final shot; slow orbit around the contact point during slow-mo; cut from wide to close-up.
   - Needs a scene change (replay camera) and a plan approval before building.
+- **Stamina regen feels too fast (tune):** noted 2026-11-11 from playtesting. Current values on Player's `CharacterStamina`: max 100, dash 15, jump 15, regen 25/s standing still and 5/s walking, drain 3/s running (≥70% of top speed). The Bot has no stamina yet.
 - **Stamina affects gameplay:** the stamina bar is meant to change what the player can do, not just display.
 - **Stamina for smashing:** smashes should cost stamina too, so you can't smash continuously (`ShotData` already has an unused `staminaCost`). The bot has no stamina yet, so it would need it as well to play by the same rules.
 - **Stamina between points:** in a real game, replenish stamina slowly between points, so players don't start each point with a full bar.
@@ -61,6 +62,15 @@ Running log of updates, newest first. Each entry: what changed, why, and anythin
 - Stamina, diving, scoring, serve, dog art (from `CLAUDE.md`'s later list).
 
 ---
+
+## 2026-11-11 — Turnaround penalty (skid)
+- Sharp turns now cost something. Velocity is split into the part along the stick and the **wrong-way** part (sideways or backwards). The wrong-way part brakes off at `skidDeceleration` (18 m/s²) before speed builds the new way, through the full burst-then-build buildup.
+- **Cost grows with speed and sharpness**, because braking is at a fixed rate: reversing at top speed (5 m/s) skids ~0.28 s, at 2 m/s ~0.11 s. A 90° turn costs less than a 180°, since speed builds the new way while the sideways part brakes.
+- **Gentle turns are free:** within `freeTurnAngle` (45°), the heading swings toward the stick with no speed lost. That swing is capped at `freeTurnRate` (540°/s), so sweeping the stick round in small steps can't dodge a skid.
+- **No escapes:** dashing is blocked mid-skid (decided 2026-11-11, even though dashes cost stamina), and letting go of the stick mid-skid keeps braking at the skid rate instead of the snappier 40 m/s² stop. Swings are still allowed.
+- `CharacterMotor.IsSkidding` + `Skidded(severity 0..1)` event, for the visuals next. A skid starts once wrong-way speed reaches `skidMinSpeed` (1.5 m/s) and lasts until it's fully gone. Smaller turns still brake but don't count as skids.
+- Open question: running → release stick (snappy stop) → push the other way stops faster than reversing directly. It's deliberate footwork and still pays the buildup, but if it feels like a loophole, lower `deceleration` toward `skidDeceleration`.
+- Tests: Edit Mode `TurnaroundTests` (skid timing, faster = costlier, sharper = costlier, gentle turn free, stick sweep still skids, release mid-skid, plain stop); Play Mode `TurnaroundPlayTests` (real Player skids on a reversal, can't dash out, gentle turn doesn't skid).
 
 ## 2026-11-11 — Running speed buildup
 - Characters no longer hit top speed instantly. Acceleration is now two-phase: a quick **burst** to 60% of top speed (~0.08 s, so the first step stays snappy), then a slower **build** to full speed (~0.33 s more, ~0.4 s total). Previously 0 → top speed took ~0.17 s at a flat 30 m/s².

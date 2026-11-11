@@ -67,7 +67,8 @@ public class CharacterStateMachine : MonoBehaviour
             case State.Idle:
             case State.Moving:
                 // Dash takes priority over jump for now. Pressing both will become a dive (see NOTES.md).
-                if (intent.DashRequested && !motor.IsAirborne)
+                // No dashing mid-skid: it would be a cheap escape from the turnaround penalty.
+                if (intent.DashRequested && !motor.IsAirborne && !motor.IsSkidding)
                 {
                     StartDash(intent.Move);
                 }

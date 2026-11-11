@@ -11,7 +11,9 @@ public class MovementRulesTests
         BurstAcceleration = 40f,
         BuildAcceleration = 6f,
         Deceleration = 40f,
-        TurnDeceleration = 30f,
+        FreeTurnAngle = 45f,
+        FreeTurnRate = 540f,
+        SkidDeceleration = 18f,
     };
 
     // Expected with the tuning above: 3 m/s / 40 = 0.075 s of burst, then 2 m/s / 6 = 0.333 s of build.
@@ -70,7 +72,7 @@ public class MovementRulesTests
     public void SidewaysMomentum_IsShedWhileBuildingTheNewDirection()
     {
         Vector3 v = MovementRules.Step(Vector3.right * 5f, Vector3.forward, 1f, Tuning, 0.1f);
-        Assert.AreEqual(5f - 30f * 0.1f, v.x, 1e-4f);
+        Assert.AreEqual(5f - 18f * 0.1f, v.x, 1e-4f, "a 90° turn brakes the sideways part at the skid rate");
         // 0.075 s of burst to 3 m/s, then 0.025 s of build at 6 m/s².
         Assert.AreEqual(3f + 6f * 0.025f, v.z, 1e-4f, "burst then build apply in the new direction");
     }
