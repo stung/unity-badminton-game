@@ -78,6 +78,27 @@ public class ShotHitter : MonoBehaviour
     }
 
     /// <summary>
+    /// Whether the birdie is playable by this character and will pass through its reach within the
+    /// next few seconds, assuming the character holds still. Steps the same deterministic flight
+    /// model as the birdie, so the look-ahead is exact for the birdie's side of things.
+    /// </summary>
+    public bool WillBeInReachWithin(float seconds)
+    {
+        if (birdie == null || !birdie.IsInFlight || ReferenceEquals(birdie.LastHitter, this)) return false;
+
+        var sim = new BirdieSimState { Position = birdie.Position, Velocity = birdie.Velocity };
+        BirdieFlightParams flight = birdie.ActiveParams;
+        int steps = Mathf.CeilToInt(Mathf.Max(0f, seconds) / flight.TimeStep);
+        // Step 0 is "right now", so a birdie already in reach counts.
+        for (int i = 0; i <= steps; i++)
+        {
+            if (CanReach(sim.Position)) return true;
+            if (i == steps || BirdieFlightModel.Step(ref sim, flight, birdie.Court) != BirdieStepResult.Flying) break;
+        }
+        return false;
+    }
+
+    /// <summary>
     /// Whether the birdie is playable and would be in reach if the character turned to face it,
     /// and if so the flat world direction to turn to. Used by the swing snap in CharacterFacing.
     /// </summary>

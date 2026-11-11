@@ -20,7 +20,6 @@ Running log of updates, newest first. Each entry: what changed, why, and anythin
 - **Tune the racket hitbox:** the dog's reach area is still a tuning placeholder (0.8 m radius, 0.05–2.8 m high, centred 0.6 m ahead).
 - **Dive:** when dash and jump are pressed together, do a dive.
 - **Dash aim assist (snap to the birdie):** when dashing, bend the dash direction toward the birdie's predicted landing spot, within reason (aim assist: the game nudges your input toward the target). Cap it with a max angle and a max distance so it helps without feeling like autopilot or teleporting. The dash is a fixed 1.5 m, so the assist mostly changes direction, not length. The bot would have to use the same rule.
-- **Slow-mo on a pre-hit jump (time dilation):** a slight slow-down of game time, but only while the player is airborne from a jump AND the birdie is about to be hit (in or near reach). No slow-down for jumps with no birdie nearby, or at any other time. Ease in and out so it doesn't pop. `GameTime` already owns `Time.timeScale` for pause and hitstop (a brief freeze on impact), so this should go through it too so the three can overlap safely. It slows everyone (both dogs and the birdie), so it's a global time scale rather than a per-character one; the exact feel gets worked out during implementation. This is also the window where the attacker telegraphs a side and the defender commits (see Telegraph & deception).
 - **Turnaround penalty (commitment):** a small cost for running one way and suddenly reversing, so changing direction costs a little (movement commitment: the game makes you live with your choice of direction for a moment). Likely a short drop in speed or a brief slide while the character decelerates and re-accelerates, scaled by how fast they were going and how sharp the turn is (a full 180° at top speed costs the most, a gentle turn costs nothing). Keep it small and tunable in the Inspector, and have the bot follow the same rule, since the motor is shared.
 - **Turnaround visual feedback (needs a design pass):** the player needs to see that the penalty happened, not just feel the lag. Ideas to try:
   - **Skid:** the dog slides with its legs braced, using `LegSwingView` to plant the legs instead of swinging them.
@@ -63,6 +62,14 @@ Running log of updates, newest first. Each entry: what changed, why, and anythin
 - Stamina, diving, scoring, serve, dog art (from `CLAUDE.md`'s later list).
 
 ---
+
+## 2026-11-11 — Slow-mo on a pre-hit jump
+- While any character is airborne from a jump AND the birdie will enter their reach within a short look-ahead, the whole game slows (both dogs and the birdie). Jumps with no birdie nearby, and close birdies played from the ground, get nothing. Once you hit it, you're the last hitter, so it eases back out.
+- **New `JumpSlowMo`** (on the GameTime object in `DogCourt.unity`, references GameTime + both `ShotHitter`s). Inspector tuning: on/off, slow-mo speed (0.5×), look-ahead (0.25 s of game time), ease in (0.08 s) and ease out (0.15 s), both in real time. It checks the bot by the same rule, though the bot doesn't jump yet.
+- **`GameTime` now has a dilation** alongside pause and hitstop. Rule (`GameTime.ComputeTimeScale`): pause or hitstop → 0, otherwise normal × dilation, so a hitstop ending mid slow-mo returns to slow-mo.
+- `ShotHitter.WillBeInReachWithin(seconds)` steps the birdie's flight sim forward to see if it will pass through reach (assumes the character holds still). Easing rules live in pure `TimeDilationBlend`.
+- Side effect to judge in play: swing windows are measured in game time, so during slow-mo they last longer in real time, making mid-air hits easier to time.
+- Tests: Edit Mode `TimeDilationTests` (time scale priority, trigger rule, easing timing); Play Mode `JumpSlowMoTests` (jump under the birdie slows; far birdie or no jump doesn't). `ScriptedIntentSource` gained `PressJump`.
 
 ## 2026-11-09 — Automated tests (Unity Test Framework)
 - **How to run:** Window → General → Test Runner → Run All (Edit Mode and Play Mode tabs). Claude also runs them after script changes (see `CLAUDE.md`).

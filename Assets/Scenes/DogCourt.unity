@@ -5683,6 +5683,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterFacing
   turnThreshold: 0.2
   lockDuringRecovery: 1
+  snapToBirdieOnSwing: 1
+  maxSnapAngle: 180
 --- !u!114 &1511963673
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6385,6 +6387,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterFacing
   turnThreshold: 0.2
   lockDuringRecovery: 1
+  snapToBirdieOnSwing: 1
+  maxSnapAngle: 180
 --- !u!114 &1653201777
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8263,6 +8267,7 @@ GameObject:
   - component: {fileID: 2059259753}
   - component: {fileID: 2059259752}
   - component: {fileID: 2059259751}
+  - component: {fileID: 2059259754}
   m_Layer: 0
   m_Name: GameTime
   m_TagString: Untagged
@@ -8313,6 +8318,27 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2059259754
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2059259750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3019367bcf6ec472cab90160aec373be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DoggyBadminton::JumpSlowMo
+  gameTime: {fileID: 2059259752}
+  hitters:
+  - {fileID: 1653201778}
+  - {fileID: 1511963666}
+  slowMoEnabled: 1
+  slowScale: 0.5
+  lookAheadSeconds: 0.25
+  easeInSeconds: 0.08
+  easeOutSeconds: 0.15
 --- !u!1 &2062284702
 GameObject:
   m_ObjectHideFlags: 0
