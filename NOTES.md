@@ -3,9 +3,8 @@
 Running log of updates, newest first. Each entry: what changed, why, and anything left open.
 
 ## Next up
-1. **Running speed buildup (high priority):** characters reach top speed instantly from a standstill. Add a short acceleration so mobility is a little weaker, and repositioning has a real cost. The bot uses the same motor, so it gets this too.
-2. **Tune drop shots (high priority):** drops arc far too high compared with real badminton, where a drop falls just over the net on a flatter, sharper path.
-3. **Shot system stage 3, tuning pass (Realistic only):** depths, speeds, reach and timing windows; hitstop and shake amounts; maybe a more forgiving window for smash returns. Consider a higher minimum contact height for smashes: from 2.0 m contact, a mid/front "smash" often has to take pace off (fallback) and comes out slow.
+1. **Tune drop shots (high priority):** drops arc far too high compared with real badminton, where a drop falls just over the net on a flatter, sharper path.
+2. **Shot system stage 3, tuning pass (Realistic only):** depths, speeds, reach and timing windows; hitstop and shake amounts; maybe a more forgiving window for smash returns. Consider a higher minimum contact height for smashes: from 2.0 m contact, a mid/front "smash" often has to take pace off (fallback) and comes out slow.
 
 ## TODO / ideas (not scheduled)
 - **Split the game assembly per folder (refactor):** all game code is one assembly (`DoggyBadminton`) for now. Splitting by folder (Birdie, Shots, Player, ...) would enforce which systems may use which, but assemblies can't reference each other in a circle, and today the folders use each other both ways. Untangle those dependencies first.
@@ -20,7 +19,7 @@ Running log of updates, newest first. Each entry: what changed, why, and anythin
 - **Tune the racket hitbox:** the dog's reach area is still a tuning placeholder (0.8 m radius, 0.05–2.8 m high, centred 0.6 m ahead).
 - **Dive:** when dash and jump are pressed together, do a dive.
 - **Dash aim assist (snap to the birdie):** when dashing, bend the dash direction toward the birdie's predicted landing spot, within reason (aim assist: the game nudges your input toward the target). Cap it with a max angle and a max distance so it helps without feeling like autopilot or teleporting. The dash is a fixed 1.5 m, so the assist mostly changes direction, not length. The bot would have to use the same rule.
-- **Turnaround penalty (commitment):** a small cost for running one way and suddenly reversing, so changing direction costs a little (movement commitment: the game makes you live with your choice of direction for a moment). Likely a short drop in speed or a brief slide while the character decelerates and re-accelerates, scaled by how fast they were going and how sharp the turn is (a full 180° at top speed costs the most, a gentle turn costs nothing). Keep it small and tunable in the Inspector, and have the bot follow the same rule, since the motor is shared.
+- **Turnaround penalty (commitment):** a small cost for running one way and suddenly reversing, so changing direction costs a little (movement commitment: the game makes you live with your choice of direction for a moment). Likely a short drop in speed or a brief slide while the character decelerates and re-accelerates, scaled by how fast they were going and how sharp the turn is (a full 180° at top speed costs the most, a gentle turn costs nothing). Keep it small and tunable in the Inspector, and have the bot follow the same rule, since the motor is shared. **Decided 2026-11-11:** dash is disabled mid-skid, so it can't be used as a cheap escape from the penalty (even though it costs stamina). Swings stay allowed. Plan: a free-turn angle (~45°) for gentle steering, sharper turns brake the wrong-way momentum before re-accelerating, and the motor exposes `IsSkidding` / a `Skidded(severity)` event for the visuals.
 - **Turnaround visual feedback (needs a design pass):** the player needs to see that the penalty happened, not just feel the lag. Ideas to try:
   - **Skid:** the dog slides with its legs braced, using `LegSwingView` to plant the legs instead of swinging them.
   - **Dust puff:** a small particle burst at the feet, a common way to sell a hard stop.
@@ -62,6 +61,14 @@ Running log of updates, newest first. Each entry: what changed, why, and anythin
 - Stamina, diving, scoring, serve, dog art (from `CLAUDE.md`'s later list).
 
 ---
+
+## 2026-11-11 — Running speed buildup
+- Characters no longer hit top speed instantly. Acceleration is now two-phase: a quick **burst** to 60% of top speed (~0.08 s, so the first step stays snappy), then a slower **build** to full speed (~0.33 s more, ~0.4 s total). Previously 0 → top speed took ~0.17 s at a flat 30 m/s².
+- Movement math moved into pure `MovementRules` (Player folder). It splits velocity into the part along the stick and the part across it, so speed buildup and turning can be tuned separately (the turnaround penalty builds on this next). `CharacterMotor` Inspector: `burstFraction`, `burstAcceleration` (40), `buildAcceleration` (6), `turnDeceleration` (30), plus the existing `maxSpeed` / `deceleration`. The old single `acceleration` field is gone.
+- Frame-rate independent: a frame that crosses the burst speed spends only the needed time at the fast rate, the rest at the slow rate.
+- The bot uses the same motor, so it's slower to the birdie now. **Not yet checked in a real rally:** if it starts missing shots it used to reach, lower its `reactionDelay` or raise `buildAcceleration`.
+- A dash still exits at full running speed, so dashing skips the buildup. Revisit if that feels like a loophole.
+- Tests: Edit Mode `MovementRulesTests` (burst and top-speed timing, frame-rate independence, partial stick, swing slowdown, release, shedding sideways momentum); Play Mode `SpeedBuildupTests` (the real Player is moving fast after 0.12 s but not yet at top speed).
 
 ## 2026-11-11 — Slow-mo on a pre-hit jump
 - While any character is airborne from a jump AND the birdie will enter their reach within a short look-ahead, the whole game slows (both dogs and the birdie). Jumps with no birdie nearby, and close birdies played from the ground, get nothing. Once you hit it, you're the last hitter, so it eases back out.

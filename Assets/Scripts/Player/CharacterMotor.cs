@@ -8,10 +8,20 @@ using UnityEngine;
 public class CharacterMotor : MonoBehaviour
 {
     [SerializeField] private float maxSpeed = 5f;
-    [Tooltip("m/s² when speeding up or changing direction.")]
-    [SerializeField] private float acceleration = 30f;
     [Tooltip("m/s² when the stick is released. Higher = snappier stops.")]
     [SerializeField] private float deceleration = 40f;
+
+    [Header("Speed buildup")]
+    // Two phases so the first step stays snappy (reflex feel) but top speed takes a moment, which
+    // makes repositioning cost something. With the defaults: ~0.08 s to 60% speed, ~0.4 s to full.
+    [Tooltip("Fraction of top speed (0..1) reached by the quick burst before the slower build takes over.")]
+    [Range(0f, 1f)] [SerializeField] private float burstFraction = 0.6f;
+    [Tooltip("m/s² from standstill up to the burst speed.")]
+    [SerializeField] private float burstAcceleration = 40f;
+    [Tooltip("m/s² from the burst speed up to top speed. Lower = longer to reach full speed.")]
+    [SerializeField] private float buildAcceleration = 6f;
+    [Tooltip("m/s² at which sideways/backwards momentum is shed when changing direction.")]
+    [SerializeField] private float turnDeceleration = 30f;
 
     [Header("Dash")]
     [Tooltip("How far a dash travels (m).")]
@@ -40,6 +50,15 @@ public class CharacterMotor : MonoBehaviour
     public CourtSide CourtSide => courtSide;
     public float MaxSpeed => maxSpeed;
     public bool IsAirborne { get; private set; }
+    public MovementTuning Tuning => new MovementTuning
+    {
+        MaxSpeed = maxSpeed,
+        BurstFraction = burstFraction,
+        BurstAcceleration = burstAcceleration,
+        BuildAcceleration = buildAcceleration,
+        Deceleration = deceleration,
+        TurnDeceleration = turnDeceleration,
+    };
     /// <summary>How far above the ground the character is (m). 0 unless jumping.</summary>
     public float HeightAboveGround => transform.position.y - groundHeight;
 
@@ -76,11 +95,7 @@ public class CharacterMotor : MonoBehaviour
         }
         else
         {
-            Vector3 targetVelocity = courtSide.ToWorld(move) * (maxSpeed * speedMultiplier);
-
-            // Decelerate when there's no input, otherwise accelerate toward the target velocity.
-            float rate = move.sqrMagnitude > 0.0001f ? acceleration : deceleration;
-            velocity = Vector3.MoveTowards(velocity, targetVelocity, rate * dt);
+            velocity = MovementRules.Step(velocity, courtSide.ToWorld(move), speedMultiplier, Tuning, dt);
         }
 
         MoveHorizontally(velocity * dt);
