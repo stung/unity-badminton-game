@@ -13,7 +13,14 @@ Running log of updates, newest first. Each entry: what changed, why, and anythin
 - **Supers (idea to consider):** special moves.
 - **Visible hitbox (idea to consider):** show the reach area in-game, not just as an Editor gizmo.
 - **Serves:** real serves to replace starting each point with a feed.
-- **Adjustable bot difficulty:** the first bot only plays easy Defensive (X) shots, for easier testing. Letting it dash would likely help it return smashes.
+- **Bot difficulty levels (design discussed 2026-11-13, not scheduled):** today's bot becomes **Easy** (only Defensive (X) shots, no dash or jump, with a reaction delay). **Hard** can dash and jump with little or no input lag. Rule: harder bots play smarter, never with abilities the player doesn't have.
+  - **Difficulty is data:** a `BotProfile` ScriptableObject (reaction delay, prediction error, contact height, placement aggression, uses dash/jump, learning rate/decay). Easy and Hard are two assets. The bot still only outputs `CharacterIntent`.
+  - **Keep some reaction delay even on Hard** (~0.15–0.2 s, human-like). Zero lag plus perfect prediction feels robotic. Win on decisions instead.
+  - **Execution levers:** landing-prediction error that shrinks as the birdie approaches (late reads are more accurate, like a human's); hitting earlier and higher on Hard; unforced errors (mistimed swings, shots out) on Easy.
+  - **Positioning levers:** recover to base (court centre) after each hit; perfect split-step timing once that exists. If Hard dashes and jumps, the bot must have stamina and pay for them like the player does (it has none yet).
+  - **Shot choice levers:** aim at corners and away from the player; wrong-foot (hit back to where the player came from, forcing a turnaround skid); disguise shots once telegraph & deception exists (Easy telegraphs honestly).
+  - **Learning mode:** keep simple counts of the player's habits (e.g. where they return from each court position, which corners they're slow to reach or miss from, whether they recover to base). Use them to lean toward the likely return (anticipation) and to target weak corners (punishing). Fairness rules: only use what's visible on court, never controller input before the hit; old observations decay, so changing habits or baiting the bot works (conditioning, like fighting games); keep the lean small so it never moves before your swing in a way that looks psychic; consider a hint like "the bot's reading your clears".
+  - **Avoid** DDA (dynamic difficulty adjustment: the game quietly adjusts to how you're doing) and rubber banding (DDA that helps whoever is behind) except maybe on Easy. Players resent it in skill games once they notice.
 - **More official Training debug screen:** make the feeder and shot readout look like a proper part of Training mode, and leave it out of Bot mode.
 - **Birdies that clip the net (very much a nice-to-have):** a shot just catching the tape could trickle over or drop short. There are ways to fake this without very realistic physics.
 - **Tune the racket hitbox:** the dog's reach area is still a tuning placeholder (0.8 m radius, 0.05–2.8 m high, centred 0.6 m ahead).
