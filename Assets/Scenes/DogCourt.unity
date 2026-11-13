@@ -10144,6 +10144,7 @@ GameObject:
   - component: {fileID: 1511963676}
   - component: {fileID: 1511963675}
   - component: {fileID: 1511963677}
+  - component: {fileID: 1511963678}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -10184,6 +10185,9 @@ MonoBehaviour:
   intentSource: {fileID: 1511963667}
   hitter: {fileID: 1511963666}
   swingTiming: {fileID: 11400000, guid: 743b34862600841b1ade3e954e0bc9a2, type: 2}
+  dashRecovery: 0.4
+  dashHitWindowStart: 0
+  dashHitWindowLength: 0.2
 --- !u!114 &1511963666
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10341,6 +10345,7 @@ MonoBehaviour:
   stillRegen: 25
   walkRegen: 5
   runDrain: 3
+  dashRecoveryRegen: 5
   stillBelow: 0.05
   runAtOrAbove: 0.7
 --- !u!114 &1511963674
@@ -10423,6 +10428,34 @@ MonoBehaviour:
   quietSkid: 0.4
   skidPitchSpread: 0.2
   panAmount: 0.4
+--- !u!114 &1511963678
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1511963663}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf6cf78e2b84b4b0ab3fe7b82842c7f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DoggyBadminton::DashRecoveryView
+  stateMachine: {fileID: 1511963665}
+  motor: {fileID: 1511963668}
+  visual: {fileID: 2118945605}
+  frontLegs:
+  - {fileID: 1573383549}
+  - {fileID: 718051348}
+  backLegs:
+  - {fileID: 1237665208}
+  - {fileID: 1801549260}
+  hopHeight: 0.12
+  flightPitch: 10
+  bellyDrop: 0.2
+  legStretch: 85
+  landingSquash: 0.12
+  holdFraction: 0.4
+  riseTilt: 12
 --- !u!1 &1535917282
 GameObject:
   m_ObjectHideFlags: 0
@@ -11017,6 +11050,7 @@ GameObject:
   - component: {fileID: 1653201783}
   - component: {fileID: 1653201782}
   - component: {fileID: 1653201784}
+  - component: {fileID: 1653201785}
   m_Layer: 0
   m_Name: Bot
   m_TagString: Untagged
@@ -11104,6 +11138,9 @@ MonoBehaviour:
   intentSource: {fileID: 1653201774}
   hitter: {fileID: 1653201778}
   swingTiming: {fileID: 11400000, guid: 743b34862600841b1ade3e954e0bc9a2, type: 2}
+  dashRecovery: 0.4
+  dashHitWindowStart: 0
+  dashHitWindowLength: 0.2
 --- !u!114 &1653201778
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11237,6 +11274,34 @@ MonoBehaviour:
   quietSkid: 0.4
   skidPitchSpread: 0.2
   panAmount: 0.4
+--- !u!114 &1653201785
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1653201773}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf6cf78e2b84b4b0ab3fe7b82842c7f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DoggyBadminton::DashRecoveryView
+  stateMachine: {fileID: 1653201777}
+  motor: {fileID: 1653201779}
+  visual: {fileID: 1254849386}
+  frontLegs:
+  - {fileID: 728286964}
+  - {fileID: 174904501}
+  backLegs:
+  - {fileID: 892497787}
+  - {fileID: 977035288}
+  hopHeight: 0.12
+  flightPitch: 10
+  bellyDrop: 0.2
+  legStretch: 85
+  landingSquash: 0.12
+  holdFraction: 0.4
+  riseTilt: 12
 --- !u!1 &1661079018
 GameObject:
   m_ObjectHideFlags: 0

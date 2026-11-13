@@ -61,6 +61,7 @@ public class CharacterMotor : MonoBehaviour
     public Vector3 Velocity => velocity;
     public CourtSide CourtSide => courtSide;
     public float MaxSpeed => maxSpeed;
+    public float DashDuration => dashDuration;
     public bool IsAirborne { get; private set; }
     public MovementTuning Tuning => new MovementTuning
     {
@@ -166,7 +167,8 @@ public class CharacterMotor : MonoBehaviour
         MoveHorizontally(dashDirection * step);
 
         if (dashDistanceLeft > 0f) return false;
-        // Come out at running speed, so a dash flows into a run instead of stopping dead.
+        // Come out at running speed, so the dash recovery that follows slides to a stop instead of
+        // halting dead (an instant stop from dash speed would look like hitting a wall).
         velocity = Vector3.ClampMagnitude(velocity, maxSpeed);
         return true;
     }

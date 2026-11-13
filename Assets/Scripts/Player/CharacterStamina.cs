@@ -20,6 +20,9 @@ public class CharacterStamina : MonoBehaviour
     [SerializeField] private float walkRegen = 5f;
     [Tooltip("Lost per second while running.")]
     [SerializeField] private float runDrain = 3f;
+    [Tooltip("Restored per second while stuck in dash recovery. Slower than standing still: getting up " +
+             "off the floor isn't resting.")]
+    [SerializeField] private float dashRecoveryRegen = 5f;
 
     [Header("Speed bands (fraction of top speed)")]
     [Tooltip("Below this counts as standing still. Above zero so the end of a slowdown already counts.")]
@@ -32,6 +35,7 @@ public class CharacterStamina : MonoBehaviour
 
     public float Current { get; private set; }
     public float Max => maxStamina;
+    public float DashRecoveryRegen => dashRecoveryRegen;
     /// <summary>Current stamina as 0..1.</summary>
     public float Normalized => maxStamina > 0f ? Current / maxStamina : 0f;
 
@@ -62,10 +66,15 @@ public class CharacterStamina : MonoBehaviour
     private void Update()
     {
         // Dashes and jumps already paid up front, so neither restores nor drains while it plays out.
-        if (motor.IsAirborne || stateMachine.CurrentState == CharacterStateMachine.State.Dashing) return;
+        var state = stateMachine.CurrentState;
+        if (motor.IsAirborne || state == CharacterStateMachine.State.Dashing) return;
+
+        // Dash recovery has its own slow rate: the dog is nearly still, so the standing-still regen
+        // would otherwise hand back most of the dash cost while it lies on the floor.
+        float rate = state == CharacterStateMachine.State.DashRecovering ? dashRecoveryRegen : RatePerSecond();
 
         // Time.deltaTime is 0 during pause and hitstop, so stamina holds still then.
-        Change(RatePerSecond() * Time.deltaTime);
+        Change(rate * Time.deltaTime);
     }
 
     private float RatePerSecond()

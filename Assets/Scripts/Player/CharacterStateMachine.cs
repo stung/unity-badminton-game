@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// Executes intents for one character: Idle / Moving / Swinging / Recovering / Dashing.
+/// Executes intents for one character: Idle / Moving / Swinging / Recovering / Dashing / DashRecovering.
 /// Works the same whether the IntentSource is a human or a bot.
 /// Being airborne is tracked by CharacterMotor rather than as a state here, because it has to
 /// overlap with swinging: a jump's whole purpose is hitting the birdie on the way up.
@@ -10,22 +10,33 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterMotor))]
 public class CharacterStateMachine : MonoBehaviour
 {
-    public enum State { Idle, Moving, Swinging, Recovering, Dashing }
+    public enum State { Idle, Moving, Swinging, Recovering, Dashing, DashRecovering }
 
     [SerializeField] private IntentSource intentSource;
     [SerializeField] private ShotHitter hitter;
     [SerializeField] private SwingTiming swingTiming;
+    [Tooltip("Seconds stuck on the ground after a dash (the dash doubles as a dive for now). " +
+             "No moving, turning, swinging or jumping meanwhile: the price of a committed lunge.")]
+    [SerializeField] private float dashRecovery = 0.4f;
+    [Tooltip("Seconds into dash recovery that a shot press starts to register (the only input that does).")]
+    [SerializeField] private float dashHitWindowStart = 0f;
+    [Tooltip("Seconds the dash-recovery hit window stays open. 0 = no hitting out of a dash.")]
+    [SerializeField] private float dashHitWindowLength = 0.2f;
 
     private CharacterMotor motor;
     private State state = State.Idle;
     private float stateTimer;
     private ShotCategory activeCategory;
     private bool hitThisSwing;
+    // A swing started from dash recovery stays rooted through its own recovery: the hit window lets a
+    // dive reach the birdie, but mustn't become a way to get up and walk early.
+    private bool rootedSwing;
 
     public State CurrentState => state;
     /// <summary>Seconds spent in the current state (game time, so it holds still during hitstop).</summary>
     public float StateTime => stateTimer;
     public SwingTiming SwingTiming => swingTiming;
+    public float DashRecovery => dashRecovery;
     /// <summary>This frame's intent, so other scripts don't read the IntentSource a second time.</summary>
     public CharacterIntent LastIntent { get; private set; }
     /// <summary>
@@ -66,7 +77,8 @@ public class CharacterStateMachine : MonoBehaviour
         {
             case State.Idle:
             case State.Moving:
-                // Dash takes priority over jump for now. Pressing both will become a dive (see NOTES.md).
+                // Dash takes priority over jump. For now the dash also stands in for the dive, which is
+                // why it ends in DashRecovering (see NOTES.md).
                 // No dashing mid-skid: it would be a cheap escape from the turnaround penalty.
                 if (intent.DashRequested && !motor.IsAirborne && !motor.IsSkidding)
                 {
@@ -79,7 +91,7 @@ public class CharacterStateMachine : MonoBehaviour
                     // Checked after the jump, not instead of it, so jump + shot on one frame does both.
                     if (intent.ShotRequest != ShotCategory.None)
                     {
-                        StartSwing(intent.ShotRequest);
+                        StartSwing(intent.ShotRequest, rooted: false);
                         speedMultiplier = swingTiming.SwingMoveMultiplier;
                     }
                     else
@@ -90,7 +102,7 @@ public class CharacterStateMachine : MonoBehaviour
                 break;
 
             case State.Swinging:
-                speedMultiplier = swingTiming.SwingMoveMultiplier;
+                speedMultiplier = rootedSwing ? 0f : swingTiming.SwingMoveMultiplier;
                 float activeStart = swingTiming.Windup;
                 float activeEnd = swingTiming.Windup + swingTiming.ActiveWindow;
                 // Test overlap between this frame's time slice and the active window, so a long
@@ -107,19 +119,45 @@ public class CharacterStateMachine : MonoBehaviour
                 break;
 
             case State.Recovering:
-                speedMultiplier = swingTiming.SwingMoveMultiplier;
-                if (stateTimer >= swingTiming.Recovery) SetState(State.Idle);
+                speedMultiplier = rootedSwing ? 0f : swingTiming.SwingMoveMultiplier;
+                if (stateTimer >= swingTiming.Recovery)
+                {
+                    rootedSwing = false;
+                    SetState(State.Idle);
+                }
+                break;
+
+            case State.DashRecovering:
+                // Recovery frames: everything but a shot inside the hit window is ignored. The motor
+                // still ticks with no stick, so the leftover dash speed brakes off as a short slide
+                // rather than stopping dead.
+                if (intent.ShotRequest != ShotCategory.None &&
+                    DashRecoveryRules.CanHit(stateTimer, dashHitWindowStart, dashHitWindowLength))
+                {
+                    // Keep the stick's sideways aim for the shot, but not its movement (rooted swing).
+                    StartSwing(intent.ShotRequest, rooted: true);
+                    speedMultiplier = 0f;
+                }
+                else if (stateTimer >= dashRecovery)
+                {
+                    SetState(State.Idle);
+                }
+                intent.Move = Vector2.zero;
                 break;
         }
 
         if (state == State.Dashing)
         {
             // Runs on the frame the dash starts too, so it responds with no delay.
-            if (motor.TickDash(dt)) SetState(State.Idle);
+            if (motor.TickDash(dt)) SetState(State.DashRecovering);
         }
         else
         {
-            motor.Tick(intent.Move, speedMultiplier, dt);
+            // A rooted swing hides the stick from the motor entirely (the shot already read it for aim).
+            // A 0 speed multiplier alone isn't enough: a held stick still counts as a turn, which brakes
+            // the leftover dash speed at the slower skid rate and so stretches the slide.
+            Vector2 move = rootedSwing ? Vector2.zero : intent.Move;
+            motor.Tick(move, speedMultiplier, dt);
         }
     }
 
@@ -140,13 +178,15 @@ public class CharacterStateMachine : MonoBehaviour
     private void DropCurrentAction()
     {
         hitThisSwing = false;
+        rootedSwing = false;
         SetState(State.Idle);
         stateTimer = 0f;
     }
 
-    private void StartSwing(ShotCategory category)
+    private void StartSwing(ShotCategory category, bool rooted)
     {
         activeCategory = category;
+        rootedSwing = rooted;
         hitThisSwing = false;
         SetState(State.Swinging);
     }

@@ -93,6 +93,7 @@ public class CharacterFacing : MonoBehaviour
         {
             case CharacterStateMachine.State.Swinging:
             case CharacterStateMachine.State.Dashing:
+            case CharacterStateMachine.State.DashRecovering:
                 return true;
             case CharacterStateMachine.State.Recovering:
                 return lockDuringRecovery;

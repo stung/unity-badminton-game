@@ -24,7 +24,7 @@ Running log of updates, newest first. Each entry: what changed, why, and anythin
 - **More official Training debug screen:** make the feeder and shot readout look like a proper part of Training mode, and leave it out of Bot mode.
 - **Birdies that clip the net (very much a nice-to-have):** a shot just catching the tape could trickle over or drop short. There are ways to fake this without very realistic physics.
 - **Tune the racket hitbox:** the dog's reach area is still a tuning placeholder (0.8 m radius, 0.05–2.8 m high, centred 0.6 m ahead).
-- **Dive:** when dash and jump are pressed together, do a dive.
+- **Dive (merged into the dash for now):** since 2026-11-13 the dash doubles as the dive and ends in a 0.4 s dash recovery. If a separate dive comes back (e.g. dash + jump together), it could be the longer, slower-to-recover option, and the plain dash could get a shorter recovery again.
 - **Dash aim assist (snap to the birdie):** when dashing, bend the dash direction toward the birdie's predicted landing spot, within reason (aim assist: the game nudges your input toward the target). Cap it with a max angle and a max distance so it helps without feeling like autopilot or teleporting. The dash is a fixed 1.5 m, so the assist mostly changes direction, not length. The bot would have to use the same rule.
 - **Make the skid more noticeable (tune):** noted 2026-11-11 from playtesting. The skid works but is too subtle. Levers on `CharacterMotor` → Turnaround (skid): lower `skidDeceleration` (longer skids), lower `freeTurnAngle` (more turns count), and maybe make braking weaker at high speed so the cost grows faster than linearly. Judge together with the skid visuals.
 - **Split-step timing bonus:** if the player split steps (the small hop real players do as the opponent hits, so they land ready to push off in any direction) right as the opponent hits the birdie, their next move skips the acceleration penalty from the running speed buildup and starts at full speed. If they then move in the wrong direction, the turnaround/backpedal penalty still applies: a well-timed split step removes the slow start, not the cost of guessing wrong. Open questions: how wide the timing window around contact is (±N frames), and whether "wrong direction" is judged against the birdie's predicted landing spot or its current velocity. Needs the speed buildup and turnaround penalty first, and the bot follows the same rule since the motor is shared.
@@ -63,6 +63,17 @@ Running log of updates, newest first. Each entry: what changed, why, and anythin
 - Stamina, diving, scoring, serve, dog art (from `CLAUDE.md`'s later list).
 
 ---
+
+## 2026-11-13 — Dash recovery (dash doubles as the dive)
+- Dash now ends in a new `DashRecovering` state on `CharacterStateMachine`: 0.4 s (`dashRecovery`, Inspector). No moving, turning, jumping or re-dashing. The leftover dash speed brakes off as a short slide.
+- **Hit window:** a shot press still registers during the first 0.2 s of recovery (`dashHitWindowStart` / `dashHitWindowLength`), so a dive can reach the birdie. It's the only input recovery accepts. That swing is **rooted** through its own recovery, so hitting can't be used to get up early. Rooted means the motor gets no stick at all (aim still reads it): a 0 speed multiplier alone let a held stick count as a turn and stretch the slide at the skid braking rate. Rule lives in `DashRecoveryRules.CanHit` (Edit Mode tested).
+- Merged the dive idea into the dash for now, since the dog already moves fast enough that a free dash was too strong.
+- Stamina refills at its own slow rate during dash recovery: `dashRecoveryRegen` = 5/s on `CharacterStamina` (standing still is 25/s, which would refund most of the dash cost). Values untuned.
+- New `DashRecoveryView` (presentation only): a "superman" belly flop. A small hop with front legs reaching forward and back legs stretched back, then a level landing on the belly (legs still out, small squash), then legs tuck and the body rises nose-first as control returns. The body stays level, so the head no longer clips into the court. Added to Player and Bot in DogCourt (needs `motor`, `visual` and the front/back leg pivots).
+- Open: lying down, the racket head dips a little into the court. Fine for greybox; later the racket could lie flat or lift during the dive.
+- Tests: `DashRecoveryRulesTests` (Edit Mode) for the hit window; `DashRecoveryTests` (Play Mode) for the lockout, the rooted swing, the recovery length, the stamina rate and the dive pose.
+- Open: the dive pose pops upright instantly if you swing out of it (the view only poses Dashing/DashRecovering). Fine for greybox.
+- Open: the bot never dashes yet, so the bot doesn't use this yet.
 
 ## 2026-11-11 — Sound effects (Kenney CC0)
 - First sounds: racket **hit**, **smash hit**, **whiff** (missed swing), birdie **landing** thud, and a cartoon **skid** (Interface `error_003`, picked by ear). Clips are from three Kenney CC0 packs (Impact Sounds, Interface Sounds, RPG Audio). The 19 clips used, plus `error_002`, `error_004` and `scratch_004` kept as spare skid options (22 total), are in `Assets/Audio/Kenney/`, with each pack's License.txt. Credit isn't required, but it's good to credit Kenney in the game.
